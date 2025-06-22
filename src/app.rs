@@ -28,7 +28,9 @@ enum AppState {
     UserSetup,
     UserEnsure,
     DoWork,
+    AllWorkDone,
     Exit,
+    InteractiveTesting,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -48,6 +50,7 @@ pub struct ZApp {
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
 impl ZApp {
+    const INTERACTIVE_TESTING: bool = false;
     // stupid work around since persistance storage does not work??
     pub fn request_init(&mut self) {
         self.state = AppState::Startup;
@@ -91,6 +94,53 @@ impl ZApp {
         self.state = AppState::Exit;
     }
 
+    fn draw_ui_interactive_testing(
+        &mut self,
+        ctx: &egui::Context,
+        _frame: &mut eframe::Frame,
+    ) -> Response {
+        let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+                ui.vertical(|ui| {
+                    // Explination
+                    ui.label("Select a job to execute");
+                    ui.label("");
+
+                    ui.vertical(|ui| {
+                        for job_category in JobCategory::iter() {
+                            let jobs_in_category: Vec<_> = ALL_JOBS
+                                .iter()
+                                .filter(|job| job.category() == job_category)
+                                .collect();
+
+                            if jobs_in_category.len() >= 1 {
+                                ui.label(format!("{:?}", job_category));
+                                ScrollArea::vertical()
+                                    .id_salt(format!("scroll_area_testing_{:?}", job_category)) // corrected from `id_salt` to `id_source`
+                                    .max_height(400.0)
+                                    .show(ui, |ui| {
+                                        ui.vertical(|ui| {
+                                            for job in jobs_in_category {
+                                                let job_name = format!("{}", job.name());
+                                                ui.horizontal(|ui| {
+                                                    if ui.button(job_name).clicked() {
+                                                        self.job_handler
+                                                            .set_jobs(vec![job.clone()]);
+                                                        self.state = AppState::DoWork;
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                            }
+                        }
+                    });
+                });
+            })
+        });
+
+        outmost_response.response
+    }
     fn draw_ui_usersetup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
@@ -228,7 +278,44 @@ impl ZApp {
                     ui.label("");
                     ui.horizontal(|ui| {
                         if self.job_handler.finished() {
-                            if ui.button("Next").clicked() {
+                            self.state = AppState::AllWorkDone;
+                        }
+                    });
+                });
+            })
+        });
+
+        outmost_response.response
+    }
+
+    fn draw_ui_finished(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
+        let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+                ui.vertical(|ui| {
+                    ui.label("Finished executing jobs...");
+                    ScrollArea::vertical()
+                        .id_salt("scroll_area_dowork") // corrected from `id_salt` to `id_source`
+                        .max_height(400.0)
+                        .show(ui, |ui| {
+                            ui.vertical(|ui| {
+                                let job_progress = self.job_handler.get_job_progress();
+                                for (job, progress) in job_progress {
+                                    let job_name = format!("{}", job.name());
+                                    ui.horizontal(|ui| {
+                                        let progress_bar = ProgressBar::new(progress)
+                                            .show_percentage()
+                                            .desired_width(100.0);
+                                        ui.add(progress_bar);
+                                        ui.label(job_name);
+                                    });
+                                }
+                            });
+                        });
+
+                    ui.label("");
+                    ui.horizontal(|ui| {
+                        if ui.button("Exit").clicked() {
+                            if self.job_handler.finished() {
                                 self.state = AppState::Exit;
                             }
                         }
@@ -287,8 +374,13 @@ impl eframe::App for ZApp {
                 self.startup(ctx, frame);
                 self.state = AppState::UserSetup;
             }
+            AppState::InteractiveTesting => {}
             AppState::UserSetup => {
-                self.draw_ui_usersetup(ctx, frame);
+                if Self::INTERACTIVE_TESTING {
+                    self.draw_ui_interactive_testing(ctx, frame);
+                } else {
+                    self.draw_ui_usersetup(ctx, frame);
+                }
             }
             AppState::UserEnsure => {
                 self.draw_ui_userensure(ctx, frame);
@@ -296,6 +388,13 @@ impl eframe::App for ZApp {
             AppState::DoWork => {
                 self.draw_ui_dowork(ctx, frame);
                 self.job_handler.update();
+            }
+            AppState::AllWorkDone => {
+                if Self::INTERACTIVE_TESTING {
+                    self.state = AppState::UserSetup;
+                    return;
+                }
+                self.draw_ui_finished(ctx, frame);
             }
             AppState::Exit => {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
