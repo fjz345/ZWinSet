@@ -71,7 +71,7 @@ impl ZApp {
     }
 
     fn init(&mut self) {
-        self.job_during_selection = ALL_JOBS.iter().cloned().map(|job|(job, false)).collect();
+        self.job_during_selection = ALL_JOBS.iter().cloned().map(|job| (job, false)).collect();
     }
 
     fn startup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -215,7 +215,7 @@ impl ZApp {
                                 for (job, progress) in job_progress {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
-                                        let progress_bar = ProgressBar::new(*progress)
+                                        let progress_bar = ProgressBar::new(progress)
                                             .show_percentage()
                                             .desired_width(100.0);
                                         ui.add(progress_bar);
@@ -295,6 +295,7 @@ impl eframe::App for ZApp {
             }
             AppState::DoWork => {
                 self.draw_ui_dowork(ctx, frame);
+                self.job_handler.update();
             }
             AppState::Exit => {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
