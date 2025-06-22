@@ -8,6 +8,7 @@ Follow instructions on screen, steps include:
 * Wait until jobs are done
 
 ## Todo
+* Dependencies (InstallChrome -> Set Chrome default)
 * Better finish screen
 * Progress bar somehow more accurate?
 * All Installers
