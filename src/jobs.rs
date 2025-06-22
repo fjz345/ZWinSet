@@ -11,6 +11,7 @@ use crate::error::Result;
 #[derive(Clone, PartialEq, Debug)]
 pub enum Job {
     PowerShellCommand(PowerShellCtx),
+    PowerShellRegKey(PowerShellRegKeyCtx),
     InstallApplication(InstallApplicationCtx),
 }
 
@@ -27,9 +28,9 @@ impl JobStep {
     pub fn execute(&mut self) -> Result<()> {
         log::info!("{}", self.command);
         let command_result = if self.require_admin() {
-            execute_powershell_as_admin(&[self.command])
+            execute_powershell_as_admin(&[self.command.clone()])
         } else {
-            execute_powershell_command(&[self.command])
+            execute_powershell_command(&[self.command.clone()])
         };
         match command_result {
             Ok(output) => {
@@ -62,6 +63,7 @@ impl Job {
         let steps: Vec<JobStep> = match self {
             Job::PowerShellCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
+            Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
         };
         steps.into_iter()
     }
@@ -70,6 +72,7 @@ impl Job {
         let steps: Vec<JobStep> = match self {
             Job::PowerShellCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
+            Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
         };
         steps.len()
     }
@@ -78,6 +81,7 @@ impl Job {
         match self {
             Job::PowerShellCommand(job) => job.category,
             Job::InstallApplication(job) => job.category,
+            Job::PowerShellRegKey(job) => job.category,
         }
     }
 
@@ -85,6 +89,7 @@ impl Job {
         match self {
             Job::PowerShellCommand(job) => job.name,
             Job::InstallApplication(job) => job.name,
+            Job::PowerShellRegKey(job) => job.name,
         }
     }
 }
@@ -105,14 +110,14 @@ trait ExecutableJob {
     fn name(&self) -> &'static str;
 }
 
-pub type PowerShellCommand = &'static str;
+pub type PowerShellCommand = String;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PowerShellCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
-    pub(crate) list_of_commands: &'static [PowerShellCommand],
+    pub(crate) list_of_commands: &'static [&'static str],
     pub(crate) require_admin: bool,
 }
 
@@ -123,9 +128,70 @@ impl ExecutableJob for PowerShellCtx {
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
         self.list_of_commands.iter().map(|f| JobStep {
-            command: f,
+            command: f.to_string(),
             require_admin: self.require_admin,
         })
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum RegKeyType {
+    DWORD,
+    STRING,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct RegKey {
+    pub(crate) path: &'static str,
+    pub(crate) name: &'static str,
+    pub(crate) value: &'static str,
+    pub(crate) key_type: RegKeyType,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct PowerShellRegKeyCtx {
+    pub(crate) name: &'static str,
+    pub(crate) explination: &'static str,
+    pub(crate) category: JobCategory,
+    pub(crate) reg_keys: &'static [RegKey],
+    pub(crate) require_admin: bool,
+}
+
+impl ExecutableJob for PowerShellRegKeyCtx {
+    fn name(&self) -> &'static str {
+        self.name
+    }
+
+    fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
+        let iters: Vec<_> = self
+            .reg_keys
+            .iter()
+            .map(|f| {
+                let variables = format!(
+                    "$regPath = {};$regName = {};$regValue = {};$regType = {:?}",
+                    f.path, f.name, f.value, f.key_type
+                );
+
+                let iter: Vec<_> = [
+                    r#"if (-not (Test-Path $regPath)) {
+                New-Item -Path $regPath -Force | Out-Null
+            }"#,
+                    r#"Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type $regType"#,
+                    r#"Write-Host "✅ EnableVoiceTyping set to 0 in $regPath""#,
+                ]
+                .iter()
+                .map(move |f| JobStep {
+                    command: format!("{}{}", variables, f),
+                    require_admin: self.require_admin,
+                })
+                .collect();
+
+                iter
+            })
+            .flatten()
+            .collect();
+
+        iters.into_iter()
     }
 }
 
@@ -149,7 +215,7 @@ impl ExecutableJob for InstallApplicationCtx {
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
         [JobStep {
-            command: "TODO",
+            command: "TODO".to_string(),
             require_admin: self.require_admin,
         }]
         .into_iter()
