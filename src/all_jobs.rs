@@ -255,15 +255,19 @@ Set-DisplayTimeout -timeoutSeconds 1800
         name: "Never Sleep",
         explination: "When plugged in, put my device to sleep after Never",
         category: JobCategory::Windows,
-        list_of_commands: &[r#"# Function to set sleep timeout (in seconds)
-function Set-SleepTimeout {
+        list_of_commands: &[r#"function Set-SleepTimeout {
     param (
         [int]$timeoutSeconds
     )
 
     # Get the current active power scheme GUID
-    $activeScheme = (powercfg /getactivescheme) -match '{.*}' | Out-Null
-    $activeScheme = $matches[0]
+    $output = powercfg /getactivescheme
+    if ($output -match 'Power Scheme GUID:\s+([a-f0-9\-]+)') {
+        $activeScheme = $matches[1]
+    } else {
+        Write-Error "❌ Could not determine active power scheme GUID."
+        return
+    }
 
     # GUID for sleep settings subgroup
     $subGroup = "238C9FA8-0AAD-41ED-83F4-97BE242C8F20"  # Sleep settings subgroup
@@ -278,7 +282,7 @@ function Set-SleepTimeout {
     Write-Host "✅ Sleep timeout (plugged in) set to $timeoutSeconds seconds."
 }
 
-# Set sleep timeout when plugged in to never (0 seconds)
+# Example: Set sleep timeout to never (0 seconds)
 Set-SleepTimeout -timeoutSeconds 0"#],
         require_admin: false,
     }),
