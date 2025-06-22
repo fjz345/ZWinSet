@@ -1,0 +1,22 @@
+[package]
+name = "ZWinSet"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = {version = "0.31.0", features = ["serde", "persistence"]}
+env_logger = "0.10"
+egui_extras = "0.31.0"
+serde = { version = "1.0.48", features = ["derive"], optional = true}
+serde_json = "1.0.48"
+log = "0.4.27"
+strum = "0.27.1"
+strum_macros = "0.27.1"
+
+[features]
+default = ["serde"]
+serde = ["dep:serde"]
+accesskit = []
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.5", features = ["winnt", "winuser"] }
