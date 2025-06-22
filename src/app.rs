@@ -50,7 +50,7 @@ pub struct ZApp {
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
 impl ZApp {
-    const INTERACTIVE_TESTING: bool = false;
+    const INTERACTIVE_TESTING: bool = true;
     // stupid work around since persistance storage does not work??
     pub fn request_init(&mut self) {
         self.state = AppState::Startup;

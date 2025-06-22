@@ -25,7 +25,7 @@ fn main() -> eframe::Result {
     };
 
     eframe::run_native(
-        "Z-Color-Picker",
+        "ZWinSet",
         native_options,
         Box::new(move |cc: &eframe::CreationContext<'_>| {
             // This gives us image support:
