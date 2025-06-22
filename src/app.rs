@@ -56,7 +56,7 @@ pub struct ZApp {
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
 impl ZApp {
-    const INTERACTIVE_TESTING: bool = true;
+    const INTERACTIVE_TESTING: bool = false;
     // stupid work around since persistance storage does not work??
     pub fn request_init(&mut self) {
         self.state = AppState::Startup;
@@ -304,6 +304,15 @@ impl ZApp {
                                 for (job, progress) in job_progress {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
+                                        let icon_id = if job.require_admin() {
+                                            self.admin_icon.clone().unwrap().id()
+                                        } else {
+                                            self.empty_icon.clone().unwrap().id()
+                                        };
+                                        ui.image(ImageSource::Texture(egui::load::SizedTexture {
+                                            id: icon_id,
+                                            size: [12.0, 15.0].into(),
+                                        }));
                                         let progress_bar = ProgressBar::new(progress)
                                             .show_percentage()
                                             .desired_width(100.0);
