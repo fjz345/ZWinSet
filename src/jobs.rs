@@ -3,7 +3,7 @@ use strum_macros::{EnumCount, EnumIter};
 use crate::commands::execute_powershell_command;
 use crate::error::Result;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Job {
     PowerShellCommand(PowerShellCtx),
     InstallApplication(InstallApplicationCtx),
@@ -52,7 +52,7 @@ trait ExecutableJob {
 
 pub type PowerShellCommand = &'static str;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PowerShellCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
@@ -62,6 +62,10 @@ pub struct PowerShellCtx {
 
 impl ExecutableJob for PowerShellCtx {
     fn execute(&mut self) -> Result<()> {
+        // TEST
+        log::info!("Executed job: {:?}", self);
+        return Ok(());
+
         let commands_to_execute = self.list_of_commands.clone();
         for cmd in commands_to_execute {
             match execute_powershell_command(&[cmd]) {
@@ -91,7 +95,7 @@ impl ExecutableJob for PowerShellCtx {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct InstallApplicationCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
@@ -115,30 +119,24 @@ impl ExecutableJob for InstallApplicationCtx {
 
 #[derive(Default)]
 pub struct JobHandler {
-    jobs: Vec<Job>,
+    jobs_with_progress: Vec<(Job, f32)>,
+    
 }
 
 impl JobHandler {
     pub fn set_jobs(&mut self, new_jobs: Vec<Job>) {
-        self.jobs = new_jobs;
+        self.jobs_with_progress = new_jobs.iter().cloned().map(|job| (job, 0.0_f32)).collect();
     }
 
-    pub fn get_jobs(&self) -> &[Job] {
-        &self.jobs
+    pub fn get_jobs<'a>(&'a self) -> impl Iterator<Item = &'a Job> {
+        self.jobs_with_progress.iter().map(|f|&f.0)
     }
 
-    pub fn get_job_progress<'a>(&'a self) -> impl Iterator<Item = (&'a Job, f32)> {
-        let progress_iter = [1.0_f32; 3].iter();
-        assert_eq!(
-            progress_iter.clone().count(),
-            self.jobs.len(),
-            "not the same length"
-        );
-
-        self.jobs.iter().zip(progress_iter).map(|(j, p)| (j, *p))
+    pub fn get_job_progress(&self) -> &Vec<(Job, f32)> {
+        &self.jobs_with_progress
     }
 
     pub fn finished(&self) -> bool {
-        self.get_job_progress().all(|f| f.1 >= 1.0)
+        self.get_job_progress().iter().map(|f|f.1).all(|f| f >= 1.0)
     }
 }

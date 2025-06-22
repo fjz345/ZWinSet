@@ -36,7 +36,10 @@ pub struct ZApp {
     monitor_size: Vec2,
     scale_factor: f32,
     native_pixel_per_point: f32,
+    #[serde(skip)]
     state: AppState,
+    #[serde(skip)]
+    job_during_selection: Vec<(Job, bool)>,
     #[serde(skip)]
     job_handler: JobHandler,
     #[serde(skip)]
@@ -67,7 +70,9 @@ impl ZApp {
         }
     }
 
-    fn init(&mut self) {}
+    fn init(&mut self) {
+        self.job_during_selection = ALL_JOBS.iter().cloned().map(|job|(job, false)).collect();
+    }
 
     fn startup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.init();
@@ -89,7 +94,7 @@ impl ZApp {
     fn draw_ui_usersetup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
-                let mut job_check_responses = Vec::new();
+                let mut job_check_responses: Vec<(Response, bool, &Job)> = Vec::new();
 
                 ui.vertical(|ui| {
                     // Explination
@@ -113,12 +118,17 @@ impl ZApp {
                                             for job in jobs_in_category {
                                                 let job_name = format!("{}", job.name());
                                                 ui.horizontal(|ui| {
-                                                    let mut checkbox_value = true;
+                                                    let mut checkbox_value = self
+                                                        .job_during_selection
+                                                        .iter_mut()
+                                                        .find(|(jjob, value)| jjob == job)
+                                                        .map(|f| &mut f.1)
+                                                        .expect("failure");
                                                     let checkbox_response =
                                                         ui.checkbox(&mut checkbox_value, &job_name);
                                                     job_check_responses.push((
                                                         checkbox_response,
-                                                        checkbox_value,
+                                                        *checkbox_value,
                                                         job,
                                                     ));
                                                 });
@@ -205,7 +215,7 @@ impl ZApp {
                                 for (job, progress) in job_progress {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
-                                        let progress_bar = ProgressBar::new(progress)
+                                        let progress_bar = ProgressBar::new(*progress)
                                             .show_percentage()
                                             .desired_width(100.0);
                                         ui.add(progress_bar);
@@ -217,9 +227,6 @@ impl ZApp {
 
                     ui.label("");
                     ui.horizontal(|ui| {
-                        if ui.button("Back").clicked() {
-                            self.state = AppState::UserSetup;
-                        }
                         if self.job_handler.finished() {
                             if ui.button("Next").clicked() {
                                 self.state = AppState::Exit;
