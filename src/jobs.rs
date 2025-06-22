@@ -192,16 +192,28 @@ impl ExecutableJob for PowerShellRegKeyCtx {
                     f.path, f.name, f.value, f.key_type.to_string()
                 );
 
-                let iter: Vec<_> = [
+    //             let iter: Vec<_> = [
+    //                 r#"if (-not (Test-Path $regPath)) {
+    //             New-Item -Path $regPath -Force | Out-Null
+    //         }"#,
+    //                 r#"if (-not (Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue)) {
+    //     New-ItemProperty -Path $regPath -Name $regName -Value $regValue -PropertyType $regType -Force
+    // } else {
+    //     Set-ItemProperty -Path $regPath -Name $regName -Value $regValue
+    // }"#,
+    // r#"Write-Host "✅ $regName set to $regValue in $regPath""#,
+    //             ]
+
+    let iter: Vec<_> = [
                     r#"if (-not (Test-Path $regPath)) {
                 New-Item -Path $regPath -Force | Out-Null
-            }"#,
-                    r#"if (-not (Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue)) {
+            }
+                    if (-not (Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue)) {
         New-ItemProperty -Path $regPath -Name $regName -Value $regValue -PropertyType $regType -Force
     } else {
         Set-ItemProperty -Path $regPath -Name $regName -Value $regValue
-    }"#,
-    r#"Write-Host "✅ $regName set to $regValue in $regPath""#,
+    }
+   Write-Host "✅ $regName set to $regValue in $regPath""#,
                 ]
                 .iter()
                 .map(move |f| JobStep {
