@@ -12,7 +12,9 @@ use crate::{
 
 use eframe::{
     CreationContext,
-    egui::{self, Layout, PointerButton, Pos2, Response, ScrollArea, Vec2, WidgetText},
+    egui::{
+        self, Layout, PointerButton, Pos2, ProgressBar, Response, ScrollArea, Vec2, WidgetText,
+    },
 };
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
@@ -192,7 +194,39 @@ impl ZApp {
     fn draw_ui_dowork(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
-                ui.label("HAIDOAWJKD");
+                ui.vertical(|ui| {
+                    ui.label("Executing Jobs...");
+                    ScrollArea::vertical()
+                        .id_salt("scroll_area_dowork") // corrected from `id_salt` to `id_source`
+                        .max_height(400.0)
+                        .show(ui, |ui| {
+                            ui.vertical(|ui| {
+                                let job_progress = self.job_handler.get_job_progress();
+                                for (job, progress) in job_progress {
+                                    let job_name = format!("{}", job.name());
+                                    ui.horizontal(|ui| {
+                                        let progress_bar = ProgressBar::new(progress)
+                                            .show_percentage()
+                                            .desired_width(100.0);
+                                        ui.add(progress_bar);
+                                        ui.label(job_name);
+                                    });
+                                }
+                            });
+                        });
+
+                    ui.label("");
+                    ui.horizontal(|ui| {
+                        if ui.button("Back").clicked() {
+                            self.state = AppState::UserSetup;
+                        }
+                        if self.job_handler.finished() {
+                            if ui.button("Next").clicked() {
+                                self.state = AppState::Exit;
+                            }
+                        }
+                    });
+                });
             })
         });
 

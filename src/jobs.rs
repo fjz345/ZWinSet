@@ -115,15 +115,30 @@ impl ExecutableJob for InstallApplicationCtx {
 
 #[derive(Default)]
 pub struct JobHandler {
-    queued_jobs: Vec<Job>,
+    jobs: Vec<Job>,
 }
 
 impl JobHandler {
     pub fn set_jobs(&mut self, new_jobs: Vec<Job>) {
-        self.queued_jobs = new_jobs;
+        self.jobs = new_jobs;
     }
 
     pub fn get_jobs(&self) -> &[Job] {
-        &self.queued_jobs
+        &self.jobs
+    }
+
+    pub fn get_job_progress<'a>(&'a self) -> impl Iterator<Item = (&'a Job, f32)> {
+        let progress_iter = [1.0_f32; 3].iter();
+        assert_eq!(
+            progress_iter.clone().count(),
+            self.jobs.len(),
+            "not the same length"
+        );
+
+        self.jobs.iter().zip(progress_iter).map(|(j, p)| (j, *p))
+    }
+
+    pub fn finished(&self) -> bool {
+        self.get_job_progress().all(|f| f.1 >= 1.0)
     }
 }
