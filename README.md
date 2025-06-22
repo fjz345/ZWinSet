@@ -28,7 +28,7 @@ Install Applications
 [D] notepad++
 [D] visual code
 [D] helix
-[D] mullvad - 3844165586079785
+[D] mullvad
 [D] battlenet
 [D] powertoys
 
