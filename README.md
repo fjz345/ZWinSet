@@ -1,5 +1,6 @@
 # ZWinSet
-![alt text](img/showcase.png)
+![alt text](showcase/job_select.png)
+![alt text](showcase/executing_jobs.png)
 
 Tired of reinstalling all applications and set all 10 windows settings and remove bloat each time I reinstall windows.
 
