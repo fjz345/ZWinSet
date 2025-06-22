@@ -445,6 +445,7 @@ impl eframe::App for ZApp {
             AppState::DoWork => {
                 self.draw_ui_dowork(ctx, frame);
                 self.job_handler.update();
+                ctx.request_repaint();
             }
             AppState::AllWorkDone => {
                 if Self::INTERACTIVE_TESTING {
