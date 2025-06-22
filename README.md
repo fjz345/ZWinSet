@@ -9,5 +9,6 @@ Follow instructions on screen, steps include:
 
 ## Todo
 * Better finish screen
+* Progress bar somehow more accurate?
 * All Installers
 * All PowerShell scripts
