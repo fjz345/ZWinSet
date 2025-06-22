@@ -47,7 +47,7 @@ impl JobStep {
                         log::info!("{}", stdout);
                         // log::error!("{}", stderr);
                     }
-                    if stdout.len() >= 1 {
+                    if stderr.len() >= 1 {
                         log::error!("{}", stderr);
                     }
                     log::error!("{}", status);
@@ -146,7 +146,18 @@ impl ExecutableJob for PowerShellCtx {
 #[derive(Clone, Debug, PartialEq)]
 pub enum RegKeyType {
     DWORD,
+    QWORD,
     STRING,
+}
+
+impl RegKeyType {
+    pub fn to_string(&self) -> &'static str {
+        match self {
+            RegKeyType::DWORD => "DWORD",
+            RegKeyType::QWORD => "QWORD",
+            RegKeyType::STRING => "STRING",
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -177,16 +188,20 @@ impl ExecutableJob for PowerShellRegKeyCtx {
             .iter()
             .map(|f| {
                 let variables = format!(
-                    "$regPath = {};$regName = {};$regValue = {};$regType = {:?}",
-                    f.path, f.name, f.value, f.key_type
+                    "$regPath = '{}';$regName = '{}';$regValue = '{}';$regType = '{}';",
+                    f.path, f.name, f.value, f.key_type.to_string()
                 );
 
                 let iter: Vec<_> = [
                     r#"if (-not (Test-Path $regPath)) {
                 New-Item -Path $regPath -Force | Out-Null
             }"#,
-                    r#"Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type $regType"#,
-                    r#"Write-Host "✅ EnableVoiceTyping set to 0 in $regPath""#,
+                    r#"if (-not (Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue)) {
+        New-ItemProperty -Path $regPath -Name $regName -Value $regValue -PropertyType $regType -Force
+    } else {
+        Set-ItemProperty -Path $regPath -Name $regName -Value $regValue
+    }"#,
+    r#"Write-Host "✅ $regName set to $regValue in $regPath""#,
                 ]
                 .iter()
                 .map(move |f| JobStep {

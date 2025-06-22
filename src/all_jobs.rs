@@ -349,10 +349,10 @@ Set-SleepTimeout -timeoutSeconds 0"#],
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Toolbar Search",
-        explination: "Hides the searchbra at the toolbar (Not Tested Yet)",
+        explination: "Hides the search bra at the toolbar (Not Tested Yet)",
         category: JobCategory::Windows,
         reg_keys: &[RegKey {
-            path: r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Search"#,
+            path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"#,
             name: r#"SearchboxTaskbarMode"#,
             value: r#"0"#,
             key_type: RegKeyType::DWORD,
