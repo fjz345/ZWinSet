@@ -59,6 +59,13 @@ impl JobStep {
 }
 
 impl Job {
+    pub fn require_admin(&self) -> bool {
+        match self {
+            Job::PowerShellCommand(job) => job.require_admin,
+            Job::PowerShellRegKey(job) => job.require_admin,
+            Job::InstallApplication(job) => job.require_admin,
+        }
+    }
     pub fn job_steps(&self) -> impl Iterator<Item = JobStep> {
         let steps: Vec<JobStep> = match self {
             Job::PowerShellCommand(job) => job.jobs_steps().collect(),

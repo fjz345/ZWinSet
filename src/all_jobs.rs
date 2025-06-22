@@ -4,7 +4,7 @@ use crate::jobs::{
 
 pub static ALL_JOBS: &[Job] = &[
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Dev Test",
+        explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,
         list_of_commands: &[
             "Start-Sleep -Milliseconds 200",
@@ -345,30 +345,6 @@ Set-SleepTimeout -timeoutSeconds 0"#],
             path: r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Search"#,
             name: r#"SearchboxTaskbarMode"#,
             value: r#"0"#,
-            key_type: RegKeyType::DWORD,
-        }],
-        require_admin: false,
-    }),
-    Job::PowerShellRegKey(PowerShellRegKeyCtx {
-        name: "",
-        explination: " (Not Tested Yet)",
-        category: JobCategory::Windows,
-        reg_keys: &[RegKey {
-            path: r#""#,
-            name: r#""#,
-            value: r#""#,
-            key_type: RegKeyType::DWORD,
-        }],
-        require_admin: false,
-    }),
-    Job::PowerShellRegKey(PowerShellRegKeyCtx {
-        name: "",
-        explination: " (Not Tested Yet)",
-        category: JobCategory::Windows,
-        reg_keys: &[RegKey {
-            path: r#""#,
-            name: r#""#,
-            value: r#""#,
             key_type: RegKeyType::DWORD,
         }],
         require_admin: false,

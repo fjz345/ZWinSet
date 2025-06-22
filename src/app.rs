@@ -7,13 +7,15 @@ use std::{
 use crate::{
     all_jobs::ALL_JOBS,
     error::Result,
+    image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler, PowerShellCtx},
 };
 
 use eframe::{
     CreationContext,
     egui::{
-        self, Layout, PointerButton, Pos2, ProgressBar, Response, ScrollArea, Vec2, WidgetText,
+        self, ImageSource, Layout, PointerButton, Pos2, ProgressBar, Response, ScrollArea,
+        TextureHandle, Vec2, WidgetText,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -46,6 +48,10 @@ pub struct ZApp {
     job_handler: JobHandler,
     #[serde(skip)]
     log_buffer: Arc<Mutex<Vec<String>>>,
+    #[serde(skip)]
+    admin_icon: Option<TextureHandle>,
+    #[serde(skip)]
+    empty_icon: Option<TextureHandle>,
 }
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
@@ -78,6 +84,8 @@ impl ZApp {
     }
 
     fn startup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.admin_icon = Some(load_admin_icon(ctx));
+        self.empty_icon = Some(load_empty_icon(ctx));
         self.init();
 
         let visuals: egui::Visuals = egui::Visuals::dark();
@@ -123,6 +131,17 @@ impl ZApp {
                                             for job in jobs_in_category {
                                                 let job_name = format!("{}", job.name());
                                                 ui.horizontal(|ui| {
+                                                    let icon_id = if job.require_admin() {
+                                                        self.admin_icon.clone().unwrap().id()
+                                                    } else {
+                                                        self.empty_icon.clone().unwrap().id()
+                                                    };
+                                                    ui.image(ImageSource::Texture(
+                                                        egui::load::SizedTexture {
+                                                            id: icon_id,
+                                                            size: [12.0, 15.0].into(),
+                                                        },
+                                                    ));
                                                     if ui.button(job_name).clicked() {
                                                         self.job_handler
                                                             .set_jobs(vec![job.clone()]);
@@ -168,6 +187,17 @@ impl ZApp {
                                             for job in jobs_in_category {
                                                 let job_name = format!("{}", job.name());
                                                 ui.horizontal(|ui| {
+                                                    let icon_id = if job.require_admin() {
+                                                        self.admin_icon.clone().unwrap().id()
+                                                    } else {
+                                                        self.empty_icon.clone().unwrap().id()
+                                                    };
+                                                    ui.image(ImageSource::Texture(
+                                                        egui::load::SizedTexture {
+                                                            id: icon_id,
+                                                            size: [12.0, 15.0].into(),
+                                                        },
+                                                    ));
                                                     let mut checkbox_value = self
                                                         .job_during_selection
                                                         .iter_mut()
@@ -229,6 +259,15 @@ impl ZApp {
                                 for job in self.job_handler.get_jobs() {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
+                                        let icon_id = if job.require_admin() {
+                                            self.admin_icon.clone().unwrap().id()
+                                        } else {
+                                            self.empty_icon.clone().unwrap().id()
+                                        };
+                                        ui.image(ImageSource::Texture(egui::load::SizedTexture {
+                                            id: icon_id,
+                                            size: [12.0, 15.0].into(),
+                                        }));
                                         ui.checkbox(&mut true, &job_name);
                                     });
                                 }

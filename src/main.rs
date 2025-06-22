@@ -12,6 +12,7 @@ mod all_jobs;
 mod app;
 mod commands;
 mod error;
+mod image;
 mod jobs;
 mod logger;
 
