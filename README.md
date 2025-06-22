@@ -2,24 +2,26 @@
 ![alt text](showcase/job_select.png)
 ![alt text](showcase/executing_jobs.png)
 
-Tired of reinstalling all applications and set all 10 windows settings and remove bloat each time I reinstall windows.
+# Introduction
+I am tired of reinstalling all applications and set all 10 windows settings and remove bloat each time I reinstall windows.
+
+This is a multi threaded tool I made to reinstall and setup my windows installation.
 
 ## Usage
 Follow instructions on screen, steps include:
 * Select jobs to execute
 * Confirm
-* Wait until jobs are done
+* Wait until jobs are done (if require admin, require manual click)
 
 ## Todo
-* Visualize requires admin
+* Interactive testing mode launch parameter
 * Dependencies (InstallChrome -> Set Chrome default)
 * Better finish screen
 * Progress bar somehow more accurate?
-* Interactive testing mode launch parameter
 
 # Stuff to do
 * [D] = Done (Not Tested)
-* [T] = Tested
+* [T] = Tested (Working confirmed)
 
 ## Install Applications
 * [D] Install Chrome
