@@ -52,7 +52,7 @@ unpin pictures
 unpin videos
 
 [D] power mode performance
-[D] windows power - do not turn off
+[T] windows power - do not turn off
 [D] Computer\HKEY_CURRENT_USER\Software\Microsoft\input\Settings EnableVoiceTyping 0
 
 

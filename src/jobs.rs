@@ -26,7 +26,6 @@ impl JobStep {
         self.require_admin
     }
     pub fn execute(&mut self) -> Result<()> {
-        log::info!("{}", self.command);
         let command_result = if self.require_admin() {
             execute_powershell_as_admin(&[self.command.clone()])
         } else {
@@ -44,7 +43,10 @@ impl JobStep {
                         // log::error!("{}", stderr);
                     }
                 } else {
-                    // log::info!("{}", stdout);
+                    if stdout.len() >= 1 {
+                        log::info!("{}", stdout);
+                        // log::error!("{}", stderr);
+                    }
                     if stdout.len() >= 1 {
                         log::error!("{}", stderr);
                     }

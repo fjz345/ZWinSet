@@ -215,15 +215,20 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Display timeout 30min",
         explination: "When plugged in, turn off my screen after 30 minutes",
         category: JobCategory::Windows,
-        list_of_commands: &[r#"# Function to set display timeout (in seconds)
+        list_of_commands: &[r#"
 function Set-DisplayTimeout {
     param (
         [int]$timeoutSeconds
     )
 
     # Get the current active power scheme GUID
-    $activeScheme = (powercfg /getactivescheme) -match '{.*}' | Out-Null
-    $activeScheme = $matches[0]
+    $output = powercfg /getactivescheme
+    if ($output -match 'Power Scheme GUID:\s+([a-f0-9\-]+)') {
+        $activeScheme = $matches[1]
+    } else {
+        Write-Error "❌ Could not determine active power scheme GUID."
+        return
+    }
 
     # GUID for display timeout setting
     $subGroup = "7516b95f-f776-4464-8c53-06167f40cc99"  # Video settings subgroup
@@ -241,8 +246,9 @@ function Set-DisplayTimeout {
     Write-Host "✅ Screen turn-off timeout set to $timeoutSeconds seconds."
 }
 
-# Set display timeout to 1800 seconds (30 minutes)
-Set-DisplayTimeout -timeoutSeconds 1800"#],
+# Example: Set display timeout to 1800 seconds (30 minutes)
+Set-DisplayTimeout -timeoutSeconds 1800
+"#],
         require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
