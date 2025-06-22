@@ -5,7 +5,7 @@ use std::thread;
 use eframe::egui::mutex::Mutex;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::commands::execute_powershell_command;
+use crate::commands::{execute_powershell_as_admin, execute_powershell_command};
 use crate::error::Result;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -17,23 +17,37 @@ pub enum Job {
 #[derive(Debug)]
 struct JobStep {
     command: PowerShellCommand,
+    require_admin: bool,
 }
 
 impl JobStep {
+    pub fn require_admin(&self) -> bool {
+        self.require_admin
+    }
     pub fn execute(&mut self) -> Result<()> {
-        match execute_powershell_command(&[self.command]) {
+        log::info!("{}", self.command);
+        let command_result = if self.require_admin() {
+            execute_powershell_as_admin(&[self.command])
+        } else {
+            execute_powershell_command(&[self.command])
+        };
+        match command_result {
             Ok(output) => {
                 let stdout = String::from_utf8_lossy(&output.stdout);
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 let status = &output.status;
 
                 if status.success() {
-                    // log::info!("{}", stdout);
-                    // log::error!("{}", stderr);
+                    if stdout.len() >= 1 {
+                        log::info!("{}", stdout);
+                        // log::error!("{}", stderr);
+                    }
                 } else {
                     // log::info!("{}", stdout);
-                    // log::error!("{}", stderr);
-                    // log::error!("{}", status);
+                    if stdout.len() >= 1 {
+                        log::error!("{}", stderr);
+                    }
+                    log::error!("{}", status);
                 }
             }
             Err(e) => log::error!("{e}"),
@@ -99,6 +113,7 @@ pub struct PowerShellCtx {
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
     pub(crate) list_of_commands: &'static [PowerShellCommand],
+    pub(crate) require_admin: bool,
 }
 
 impl ExecutableJob for PowerShellCtx {
@@ -107,7 +122,10 @@ impl ExecutableJob for PowerShellCtx {
     }
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
-        self.list_of_commands.iter().map(|f| JobStep { command: f })
+        self.list_of_commands.iter().map(|f| JobStep {
+            command: f,
+            require_admin: self.require_admin,
+        })
     }
 }
 
@@ -117,6 +135,7 @@ pub struct InstallApplicationCtx {
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
     pub(crate) application_name: &'static str,
+    pub(crate) require_admin: bool,
 }
 
 impl ExecutableJob for InstallApplicationCtx {
@@ -129,7 +148,11 @@ impl ExecutableJob for InstallApplicationCtx {
     }
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
-        [JobStep { command: "TODO" }].into_iter()
+        [JobStep {
+            command: "TODO",
+            require_admin: self.require_admin,
+        }]
+        .into_iter()
     }
 }
 
