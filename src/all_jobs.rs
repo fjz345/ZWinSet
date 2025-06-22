@@ -162,7 +162,7 @@ pub static ALL_JOBS: &[Job] = &[
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install WSL (Not Tested Yet)",
-        category: JobCategory::Application,
+        category: JobCategory::Windows,
         list_of_commands: &[
             r#"if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
                 Write-Host "❗ Please run this script as Administrator." -ForegroundColor Red
