@@ -2,6 +2,9 @@
 ![alt text](showcase/job_select.png)
 ![alt text](showcase/executing_jobs.png)
 
+# Disclaimer
+I take no responsibility what so ever over you using this tool. Use at own risk.
+
 # Introduction
 I am tired of reinstalling all applications and set all 10 windows settings and remove bloat each time I reinstall windows.
 
@@ -44,13 +47,15 @@ Note that not all jobs are correctly working, check the status of each job in th
 * [T] shift spam fix
 * [D] wsl
 * [T] remove cortana
-* [D] developer mode
+* [T] developer mode
 * [T] power mode performance
 * [T] windows power - do not turn off
 * [T] mouse acceleration
 * [T] remove "searchbar"
 * [D] Computer\HKEY_CURRENT_USER\Software\Microsoft\input\Settings EnableVoiceTyping 0
 
+* Windows ad settings
+* Windows remove password
 * chrome default browser
 * Remove Edge
 * remove bing
