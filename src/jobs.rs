@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::process::Output;
 use std::sync::Arc;
 use std::thread;
 
@@ -18,7 +17,7 @@ pub enum Job {
 }
 
 #[derive(Debug)]
-struct JobStep {
+pub struct JobStep {
     command: PowerShellCommand,
     require_admin: bool,
     post_fn: Option<fn()>,
@@ -203,7 +202,7 @@ impl ExecutableJob for PowerShellCtx {
     }
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
-        self.list_of_commands.iter().map(|(f)| JobStep {
+        self.list_of_commands.iter().map(|f| JobStep {
             command: f.cmd.to_string(),
             require_admin: f.requires_admin.into(),
             post_fn: None,

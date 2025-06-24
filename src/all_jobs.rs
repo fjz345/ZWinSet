@@ -1,7 +1,7 @@
 use crate::{
     jobs::{
-        InstallApplicationCtx, Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey,
-        RegKeyType, RequireAdmin, RustFunctionCtx, StaticPowerShellCommand,
+        Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
+        StaticPowerShellCommand,
     },
     windows::disable_sticky_keys,
 };

@@ -1,27 +1,20 @@
-use std::{
-    cell::RefCell,
-    rc::Rc,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use crate::{
     all_jobs::ALL_JOBS,
-    error::Result,
     image::{load_admin_icon, load_empty_icon},
-    jobs::{Job, JobCategory, JobHandler, PowerShellCtx},
+    jobs::{Job, JobCategory, JobHandler},
 };
 
 use eframe::{
     CreationContext,
     egui::{
         self, ImageSource, Layout, PointerButton, Pos2, ProgressBar, Response, ScrollArea,
-        TextureHandle, Vec2, WidgetText,
+        TextureHandle, Vec2,
     },
 };
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
-
-use crate::{commands::test_cmd, logger::LogCollector};
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 enum AppState {
@@ -107,7 +100,7 @@ impl ZApp {
         _frame: &mut eframe::Frame,
     ) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 ui.vertical(|ui| {
                     // Explination
                     ui.label("Select a job to execute");
@@ -161,7 +154,7 @@ impl ZApp {
     }
     fn draw_ui_usersetup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 let mut job_check_responses: Vec<(Response, bool, &Job)> = Vec::new();
 
                 ui.vertical(|ui| {
@@ -201,7 +194,7 @@ impl ZApp {
                                                             let mut checkbox_value = self
                                                                 .job_during_selection
                                                                 .iter_mut()
-                                                                .find(|(jjob, value)| jjob == job)
+                                                                .find(|(jjob, _value)| jjob == job)
                                                                 .map(|f| &mut f.1)
                                                                 .expect("failure");
                                                             let checkbox_response = ui.checkbox(
@@ -250,7 +243,7 @@ impl ZApp {
 
     fn draw_ui_userensure(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 ui.vertical(|ui| {
                     ui.label("Are you sure you would like to execute these jobs?");
                     ui.label("");
@@ -296,7 +289,7 @@ impl ZApp {
 
     fn draw_ui_dowork(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 ui.vertical(|ui| {
                     ui.label("Executing Jobs...");
                     ScrollArea::vertical()
@@ -333,11 +326,9 @@ impl ZApp {
                         });
 
                     ui.label("");
-                    ui.horizontal(|ui| {
-                        if self.job_handler.finished() {
-                            self.state = AppState::AllWorkDone;
-                        }
-                    });
+                    if self.job_handler.finished() {
+                        self.state = AppState::AllWorkDone;
+                    }
                 });
             })
         });
@@ -347,7 +338,7 @@ impl ZApp {
 
     fn draw_ui_finished(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.with_layout(Layout::left_to_right(egui::Align::Min), |mut ui| {
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 ui.vertical(|ui| {
                     ui.label("Finished executing jobs...");
                     ScrollArea::vertical()
