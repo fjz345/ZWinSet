@@ -156,10 +156,9 @@ pub static ALL_JOBS: &[Job] = &[
         explination: "Install PowerToys (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$powertoysInstaller = "$env:TEMP\PowerToysSetup.exe""#,
-            r#"$powertoysInstaller = "$env:TEMP\PowerToysSetup.exe";Invoke-WebRequest -Uri "https://github.com/microsoft/PowerToys/releases/latest/download/PowerToysSetup-x64.exe" -OutFile $powertoysInstaller"#,
-            r#"$powertoysInstaller = "$env:TEMP\PowerToysSetup.exe";Start-Process -FilePath $powertoysInstaller -ArgumentList "/silent" -Wait"#,
-            r#"$powertoysInstaller = "$env:TEMP\PowerToysSetup.exe";Remove-Item $powertoysInstaller"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Downloading...'; Invoke-WebRequest -Uri 'https://github.com/microsoft/PowerToys/releases/latest/download/PowerToysSetup-x64.exe' -OutFile $powertoysInstaller -UseBasicParsing"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
         ],
         name: "PowerToys",
         require_admin: false,

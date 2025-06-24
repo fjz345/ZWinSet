@@ -19,6 +19,7 @@ Follow instructions on screen, steps include:
 * Dependencies (InstallChrome -> Set Chrome default)
 * Better finish screen
 * Progress bar somehow more accurate?
+* Get the windows topbar height and subtract minscreensize with it
 
 # Stuff to do
 * [D] = Done (Not Tested)

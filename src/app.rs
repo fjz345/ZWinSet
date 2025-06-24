@@ -305,7 +305,7 @@ impl ZApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let job_progress = self.job_handler.get_job_progress();
-                                for (job, progress) in job_progress {
+                                for (job, job_status) in job_progress {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
                                         let icon_id = if job.require_admin() {
@@ -317,9 +317,14 @@ impl ZApp {
                                             id: icon_id,
                                             size: [12.0, 15.0].into(),
                                         }));
-                                        let progress_bar = ProgressBar::new(progress)
-                                            .show_percentage()
-                                            .desired_width(100.0);
+                                        let progress_bar = ProgressBar::new(match job_status {
+                                            crate::jobs::JobStatus::NotStarted => 0.0,
+                                            crate::jobs::JobStatus::InProgress(p) => p,
+                                            crate::jobs::JobStatus::Failed(p) => p,
+                                            crate::jobs::JobStatus::Finished => 1.0,
+                                        })
+                                        .show_percentage()
+                                        .desired_width(100.0);
                                         ui.add(progress_bar);
                                         ui.label(job_name);
                                     });
@@ -351,7 +356,7 @@ impl ZApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let job_progress = self.job_handler.get_job_progress();
-                                for (job, progress) in job_progress {
+                                for (job, job_status) in job_progress {
                                     let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
                                         let icon_id = if job.require_admin() {
@@ -363,9 +368,14 @@ impl ZApp {
                                             id: icon_id,
                                             size: [12.0, 15.0].into(),
                                         }));
-                                        let progress_bar = ProgressBar::new(progress)
-                                            .show_percentage()
-                                            .desired_width(100.0);
+                                        let progress_bar = ProgressBar::new(match job_status {
+                                            crate::jobs::JobStatus::NotStarted => 0.0,
+                                            crate::jobs::JobStatus::InProgress(p) => p,
+                                            crate::jobs::JobStatus::Failed(p) => p,
+                                            crate::jobs::JobStatus::Finished => 1.0,
+                                        })
+                                        .show_percentage()
+                                        .desired_width(100.0);
                                         ui.add(progress_bar);
                                         ui.label(job_name);
                                     });

@@ -7,7 +7,7 @@ use eframe::egui::mutex::Mutex;
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::commands::{execute_powershell_as_admin, execute_powershell_command};
-use crate::error::Result;
+use crate::error::{Result, ZError};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Job {
@@ -39,6 +39,7 @@ impl JobStep {
             None
         };
 
+        let mut z_error = None;
         if let Some(res) = powershell_result {
             match res {
                 Ok(output) => {
@@ -59,17 +60,22 @@ impl JobStep {
                         if stderr.len() >= 1 {
                             log::error!("{}", stderr);
                         }
-                        log::error!("{}", status);
+                        z_error = Some(ZError::Message(format!("{status}")))
                     }
                 }
-                Err(e) => log::error!("{e}"),
+                Err(e) => z_error = Some(ZError::Message(format!("{e}"))),
             }
         }
 
         if let Some(post_fn) = self.post_fn {
             post_fn();
         }
-        Ok(())
+
+        if let Some(err) = z_error {
+            Err(err)
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -337,17 +343,29 @@ impl ExecutableJob for InstallApplicationCtx {
     }
 }
 
+#[derive(Default, Clone, Debug)]
+pub enum JobStatus {
+    #[default]
+    NotStarted,
+    InProgress(f32),
+    Failed(f32),
+    Finished,
+}
+
 #[derive(Default)]
 pub struct JobHandler {
-    jobs_with_progress: Arc<Mutex<Vec<(Job, f32)>>>,
+    jobs_with_progress: Arc<Mutex<Vec<(Job, JobStatus)>>>,
     jobs_not_queued: Vec<Job>,
     jobs_queued: VecDeque<Job>,
 }
 
 impl JobHandler {
     pub fn set_jobs(&mut self, new_jobs: Vec<Job>) {
-        let jobs_with_0_progress: Vec<(Job, f32)> =
-            new_jobs.iter().cloned().map(|job| (job, 0.0_f32)).collect();
+        let jobs_with_0_progress: Vec<(Job, JobStatus)> = new_jobs
+            .iter()
+            .cloned()
+            .map(|job| (job, JobStatus::default()))
+            .collect();
         self.jobs_with_progress = Arc::new(Mutex::new(jobs_with_0_progress));
         self.jobs_not_queued = new_jobs;
     }
@@ -358,16 +376,21 @@ impl JobHandler {
         jobs.into_iter()
     }
 
-    pub fn get_job_progress(&self) -> Vec<(Job, f32)> {
+    pub fn get_job_progress(&self) -> Vec<(Job, JobStatus)> {
         let mutex = self.jobs_with_progress.lock();
-        mutex.iter().map(|(a, b)| (a.clone(), *b)).collect()
+        mutex.iter().map(|(a, b)| (a.clone(), b.clone())).collect()
     }
 
     pub fn finished(&self) -> bool {
         self.get_job_progress()
             .iter()
-            .map(|f| f.1)
-            .all(|f| f >= 1.0)
+            .map(|f| &f.1)
+            .all(|f| match f {
+                JobStatus::InProgress(_) => false,
+                JobStatus::Failed(_) => true,
+                JobStatus::Finished => true,
+                JobStatus::NotStarted => false,
+            })
     }
 
     pub fn update(&mut self) {
@@ -380,15 +403,16 @@ impl JobHandler {
         let jobs_to_queue = self.jobs_queued.clone();
         self.jobs_queued.clear();
 
-        let update_job_progress =
-            |complete_job_mutex: Arc<Mutex<Vec<(Job, f32)>>>, job: &Job, new_progress: f32| {
-                let mut mutex = complete_job_mutex.lock();
-                let job_in_progress = mutex
-                    .iter_mut()
-                    .find(|(jjob, _progress)| *jjob == *job)
-                    .unwrap();
-                job_in_progress.1 = new_progress;
-            };
+        let update_job_progress = |complete_job_mutex: Arc<Mutex<Vec<(Job, JobStatus)>>>,
+                                   job: &Job,
+                                   new_progress: JobStatus| {
+            let mut mutex = complete_job_mutex.lock();
+            let job_in_progress = mutex
+                .iter_mut()
+                .find(|(jjob, _progress)| *jjob == *job)
+                .unwrap();
+            job_in_progress.1 = new_progress;
+        };
         for job in jobs_to_queue {
             let complete_job_mutex = self.jobs_with_progress.clone();
             let _handle = thread::spawn(move || {
@@ -400,13 +424,20 @@ impl JobHandler {
                     let res = step.execute();
                     match res {
                         Ok(_) => {}
-                        Err(e) => log::error!("{e}"),
+                        Err(e) => {
+                            log::error!("{e}");
+                            break;
+                        }
                     }
                     let new_progress = i as f32 / (job_count as f32);
-                    update_job_progress(complete_job_mutex.clone(), &job, new_progress);
+                    update_job_progress(
+                        complete_job_mutex.clone(),
+                        &job,
+                        JobStatus::InProgress(new_progress),
+                    );
                 }
 
-                update_job_progress(complete_job_mutex, &job, 1.0);
+                update_job_progress(complete_job_mutex, &job, JobStatus::Finished);
                 log::trace!("thread finished {:?}", &job);
             });
         }
