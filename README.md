@@ -41,7 +41,7 @@ Follow instructions on screen, steps include:
 * [D] wsl
 * [D] remove cortana
 * [D] developer mode
-* [D] power mode performance
+* [T] power mode performance
 * [T] windows power - do not turn off
 * [T] mouse acceleration
 * [T] remove "searchbar"

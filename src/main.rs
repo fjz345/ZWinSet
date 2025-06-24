@@ -15,6 +15,7 @@ mod error;
 mod image;
 mod jobs;
 mod logger;
+mod windows;
 
 fn main() -> eframe::Result {
     unsafe { env::set_var("RUST_LOG", "debug") }; // or "info" or "debug"

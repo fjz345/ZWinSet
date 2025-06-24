@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::process::Output;
 use std::sync::Arc;
 use std::thread;
 
@@ -12,6 +13,7 @@ use crate::error::Result;
 pub enum Job {
     PowerShellCommand(PowerShellCtx),
     PowerShellRegKey(PowerShellRegKeyCtx),
+    RustFunction(RustFunctionCtx),
     InstallApplication(InstallApplicationCtx),
 }
 
@@ -19,6 +21,7 @@ pub enum Job {
 struct JobStep {
     command: PowerShellCommand,
     require_admin: bool,
+    post_fn: Option<fn()>,
 }
 
 impl JobStep {
@@ -26,36 +29,46 @@ impl JobStep {
         self.require_admin
     }
     pub fn execute(&mut self) -> Result<()> {
-        let command_result = if self.require_admin() {
-            execute_powershell_as_admin(&[self.command.clone()])
-        } else {
-            execute_powershell_command(&[self.command.clone()])
-        };
-        match command_result {
-            Ok(output) => {
-                let stdout = String::from_utf8_lossy(&output.stdout);
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                let status = &output.status;
-
-                if status.success() {
-                    if stdout.len() >= 1 {
-                        log::info!("{}", stdout);
-                        // log::error!("{}", stderr);
-                    }
-                } else {
-                    if stdout.len() >= 1 {
-                        log::info!("{}", stdout);
-                        // log::error!("{}", stderr);
-                    }
-                    if stderr.len() >= 1 {
-                        log::error!("{}", stderr);
-                    }
-                    log::error!("{}", status);
-                }
+        let powershell_result = if !self.command.is_empty() {
+            if self.require_admin() {
+                Some(execute_powershell_as_admin(&[self.command.clone()]))
+            } else {
+                Some(execute_powershell_command(&[self.command.clone()]))
             }
-            Err(e) => log::error!("{e}"),
+        } else {
+            None
+        };
+
+        if let Some(res) = powershell_result {
+            match res {
+                Ok(output) => {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    let status = &output.status;
+
+                    if status.success() {
+                        if stdout.len() >= 1 {
+                            log::info!("{}", stdout);
+                            // log::error!("{}", stderr);
+                        }
+                    } else {
+                        if stdout.len() >= 1 {
+                            log::info!("{}", stdout);
+                            // log::error!("{}", stderr);
+                        }
+                        if stderr.len() >= 1 {
+                            log::error!("{}", stderr);
+                        }
+                        log::error!("{}", status);
+                    }
+                }
+                Err(e) => log::error!("{e}"),
+            }
         }
 
+        if let Some(post_fn) = self.post_fn {
+            post_fn();
+        }
         Ok(())
     }
 }
@@ -66,6 +79,10 @@ impl Job {
             Job::PowerShellCommand(job) => job.require_admin,
             Job::PowerShellRegKey(job) => job.require_admin,
             Job::InstallApplication(job) => job.require_admin,
+            Job::RustFunction(job) => {
+                log::error!("require_admin() should not be called for RustFunction");
+                false
+            }
         }
     }
     pub fn job_steps(&self) -> impl Iterator<Item = JobStep> {
@@ -73,6 +90,7 @@ impl Job {
             Job::PowerShellCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
             Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
+            Job::RustFunction(job) => job.jobs_steps().collect(),
         };
         steps.into_iter()
     }
@@ -82,6 +100,7 @@ impl Job {
             Job::PowerShellCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
             Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
+            Job::RustFunction(job) => job.jobs_steps().collect(),
         };
         steps.len()
     }
@@ -91,6 +110,7 @@ impl Job {
             Job::PowerShellCommand(job) => job.category,
             Job::InstallApplication(job) => job.category,
             Job::PowerShellRegKey(job) => job.category,
+            Job::RustFunction(job) => job.category,
         }
     }
 
@@ -99,6 +119,7 @@ impl Job {
             Job::PowerShellCommand(job) => job.name,
             Job::InstallApplication(job) => job.name,
             Job::PowerShellRegKey(job) => job.name,
+            Job::RustFunction(job) => job.name,
         }
     }
 }
@@ -139,6 +160,7 @@ impl ExecutableJob for PowerShellCtx {
         self.list_of_commands.iter().map(|f| JobStep {
             command: f.to_string(),
             require_admin: self.require_admin,
+            post_fn: None,
         })
     }
 }
@@ -175,6 +197,7 @@ pub struct PowerShellRegKeyCtx {
     pub(crate) category: JobCategory,
     pub(crate) reg_keys: &'static [RegKey],
     pub(crate) require_admin: bool,
+    pub(crate) post_fn: Option<fn()>,
 }
 
 impl ExecutableJob for PowerShellRegKeyCtx {
@@ -183,7 +206,7 @@ impl ExecutableJob for PowerShellRegKeyCtx {
     }
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
-        let iters: Vec<_> = self
+        let mut iters: Vec<_> = self
             .reg_keys
             .iter()
             .map(|f| {
@@ -219,6 +242,7 @@ impl ExecutableJob for PowerShellRegKeyCtx {
                 .map(move |f| JobStep {
                     command: format!("{}{}", variables, f),
                     require_admin: self.require_admin,
+                    post_fn: None,
                 })
                 .collect();
 
@@ -227,7 +251,61 @@ impl ExecutableJob for PowerShellRegKeyCtx {
             .flatten()
             .collect();
 
+        if let Some(post_job) = self.post_fn {
+            let job_steps = vec![JobStep {
+                command: "".to_string(),
+                require_admin: false,
+                post_fn: Some(post_job),
+            }];
+            iters.extend(job_steps);
+        }
+
         iters.into_iter()
+    }
+}
+
+#[derive(Clone)]
+pub struct RustFunctionCtx {
+    pub(crate) name: &'static str,
+    pub(crate) explination: &'static str,
+    pub(crate) category: JobCategory,
+    pub(crate) func: fn(),
+}
+
+impl std::fmt::Debug for RustFunctionCtx {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RustFunctionCtx")
+            .field("name", &self.name)
+            .field("explination", &self.explination)
+            .field("category", &self.category)
+            .field("func", &"<function>") // can't print closure itself
+            .finish()
+    }
+}
+
+impl PartialEq for RustFunctionCtx {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+            && self.explination == other.explination
+            && self.category == other.category
+        // && self.func == other.func
+    }
+}
+
+impl ExecutableJob for RustFunctionCtx {
+    fn name(&self) -> &'static str {
+        self.name
+    }
+
+    fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
+        // fake job_step
+        (self.func)();
+        let job_step = JobStep {
+            command: "".to_string(),
+            require_admin: false,
+            post_fn: None,
+        };
+        vec![job_step].into_iter()
     }
 }
 
@@ -253,6 +331,7 @@ impl ExecutableJob for InstallApplicationCtx {
         [JobStep {
             command: "TODO".to_string(),
             require_admin: self.require_admin,
+            post_fn: None,
         }]
         .into_iter()
     }

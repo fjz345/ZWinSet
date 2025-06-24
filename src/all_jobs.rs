@@ -1,5 +1,9 @@
-use crate::jobs::{
-    InstallApplicationCtx, Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
+use crate::{
+    jobs::{
+        InstallApplicationCtx, Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey,
+        RegKeyType, RustFunctionCtx,
+    },
+    windows::disable_sticky_keys,
 };
 
 pub static ALL_JOBS: &[Job] = &[
@@ -308,32 +312,46 @@ Set-SleepTimeout -timeoutSeconds 0"#],
             value: r#"0"#,
             key_type: RegKeyType::DWORD,
         }],
+        post_fn: None,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
-        name: "Sticky Keys",
+        name: "Sticky Keys (shift)",
         explination: "Disable Sticky Keys (Spam Shift) (Not Tested Yet)",
         category: JobCategory::Windows,
         reg_keys: &[
             RegKey {
                 path: r#"HKCU:\Control Panel\Accessibility\StickyKeys"#,
                 name: r#"Flags"#,
-                value: r#"506"#,
+                value: r#"506"#, // off
                 key_type: RegKeyType::DWORD,
             },
             RegKey {
                 path: r#"HKCU:\Control Panel\Accessibility\StickyKeys"#,
-                name: r#"HotkeyFlags"#,
+                name: r#"HotKeyActive"#,
+                value: r#"0"#, // disables Shift hotkey
+                key_type: RegKeyType::DWORD,
+            },
+            RegKey {
+                path: r#"HKCU:\Control Panel\Accessibility\StickyKeys"#,
+                name: r#"ConfirmActivation"#,
+                value: r#"0"#, // disables confirmation popup
+                key_type: RegKeyType::DWORD,
+            },
+            RegKey {
+                path: r#"HKCU:\Control Panel\Accessibility\Keyboard Response"#,
+                name: r#"HotKeyActive"#,
                 value: r#"0"#,
                 key_type: RegKeyType::DWORD,
             },
             RegKey {
-                path: r#"HKCU:\Control Panel\Accessibility\StickyKeys"#,
-                name: r#"PopupSetting"#,
+                path: r#"HKCU:\Control Panel\Accessibility\ToggleKeys"#,
+                name: r#"HotKeyActive"#,
                 value: r#"0"#,
                 key_type: RegKeyType::DWORD,
             },
         ],
         require_admin: false,
+        post_fn: Some(disable_sticky_keys),
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Developer Mode",
@@ -346,6 +364,7 @@ Set-SleepTimeout -timeoutSeconds 0"#],
             key_type: RegKeyType::DWORD,
         }],
         require_admin: true,
+        post_fn: None,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Toolbar Search",
@@ -358,6 +377,7 @@ Set-SleepTimeout -timeoutSeconds 0"#],
             key_type: RegKeyType::DWORD,
         }],
         require_admin: false,
+        post_fn: None,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Windows mouse acceleration is on by default",

@@ -16,10 +16,17 @@ tempfile = "3.20.0"
 base64 = "0.22.1"
 image = {version = "0.24", features = ["png"]}
 
+[dependencies.windows]
+version = "0.61.3"
+features = [
+    "Win32_UI_Accessibility",
+    "Win32_UI_WindowsAndMessaging"
+]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.5", features = ["winnt", "winuser"] }
+
 [features]
 default = ["serde"]
 serde = ["dep:serde"]
 accesskit = []
-
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.5", features = ["winnt", "winuser"] }
