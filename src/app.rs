@@ -371,6 +371,11 @@ impl ZApp {
 
                     ui.label("");
                     ui.horizontal(|ui| {
+                        if ui.button("To Start").clicked() {
+                            if self.job_handler.finished() {
+                                self.state = AppState::Startup;
+                            }
+                        }
                         if ui.button("Exit").clicked() {
                             if self.job_handler.finished() {
                                 self.state = AppState::Exit;
