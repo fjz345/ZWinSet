@@ -32,7 +32,6 @@ enum AppState {
     DoWork,
     AllWorkDone,
     Exit,
-    InteractiveTesting,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -125,7 +124,7 @@ impl ZApp {
                                 ui.label(format!("{:?}", job_category));
                                 ScrollArea::vertical()
                                     .id_salt(format!("scroll_area_testing_{:?}", job_category)) // corrected from `id_salt` to `id_source`
-                                    .max_height(400.0)
+                                    .max_height(f32::INFINITY)
                                     .show(ui, |ui| {
                                         ui.vertical(|ui| {
                                             for job in jobs_in_category {
@@ -169,8 +168,7 @@ impl ZApp {
                     // Explination
                     ui.label("Select desiered jobs, then press next to do the jobs");
                     ui.label("");
-
-                    ui.vertical(|ui| {
+                    ui.horizontal(|ui| {
                         for job_category in JobCategory::iter() {
                             let jobs_in_category: Vec<_> = ALL_JOBS
                                 .iter()
@@ -178,43 +176,49 @@ impl ZApp {
                                 .collect();
 
                             if jobs_in_category.len() >= 1 {
-                                ui.label(format!("{:?}", job_category));
-                                ScrollArea::vertical()
-                                    .id_salt(format!("scroll_area_{:?}", job_category)) // corrected from `id_salt` to `id_source`
-                                    .max_height(400.0)
-                                    .show(ui, |ui| {
-                                        ui.vertical(|ui| {
-                                            for job in jobs_in_category {
-                                                let job_name = format!("{}", job.name());
-                                                ui.horizontal(|ui| {
-                                                    let icon_id = if job.require_admin() {
-                                                        self.admin_icon.clone().unwrap().id()
-                                                    } else {
-                                                        self.empty_icon.clone().unwrap().id()
-                                                    };
-                                                    ui.image(ImageSource::Texture(
-                                                        egui::load::SizedTexture {
-                                                            id: icon_id,
-                                                            size: [12.0, 15.0].into(),
-                                                        },
-                                                    ));
-                                                    let mut checkbox_value = self
-                                                        .job_during_selection
-                                                        .iter_mut()
-                                                        .find(|(jjob, value)| jjob == job)
-                                                        .map(|f| &mut f.1)
-                                                        .expect("failure");
-                                                    let checkbox_response =
-                                                        ui.checkbox(&mut checkbox_value, &job_name);
-                                                    job_check_responses.push((
-                                                        checkbox_response,
-                                                        *checkbox_value,
-                                                        job,
-                                                    ));
+                                ui.vertical(|ui| {
+                                    ui.label(format!("{:?}", job_category));
+                                    ui.horizontal(|ui| {
+                                        ScrollArea::vertical()
+                                            .id_salt(format!("scroll_area_{:?}", job_category)) // corrected from `id_salt` to `id_source`
+                                            .min_scrolled_height(400.0)
+                                            .show(ui, |ui| {
+                                                ui.vertical(|ui| {
+                                                    for job in jobs_in_category {
+                                                        let job_name = format!("{}", job.name());
+                                                        let icon_id = if job.require_admin() {
+                                                            self.admin_icon.clone().unwrap().id()
+                                                        } else {
+                                                            self.empty_icon.clone().unwrap().id()
+                                                        };
+                                                        ui.horizontal(|ui| {
+                                                            ui.image(ImageSource::Texture(
+                                                                egui::load::SizedTexture {
+                                                                    id: icon_id,
+                                                                    size: [12.0, 15.0].into(),
+                                                                },
+                                                            ));
+                                                            let mut checkbox_value = self
+                                                                .job_during_selection
+                                                                .iter_mut()
+                                                                .find(|(jjob, value)| jjob == job)
+                                                                .map(|f| &mut f.1)
+                                                                .expect("failure");
+                                                            let checkbox_response = ui.checkbox(
+                                                                &mut checkbox_value,
+                                                                &job_name,
+                                                            );
+                                                            job_check_responses.push((
+                                                                checkbox_response,
+                                                                *checkbox_value,
+                                                                job,
+                                                            ));
+                                                        });
+                                                    }
                                                 });
-                                            }
-                                        });
+                                            });
                                     });
+                                });
                             }
                         }
                     });
@@ -253,7 +257,7 @@ impl ZApp {
                     ui.label("Selected Jobs:");
                     ScrollArea::vertical()
                         .id_salt("scroll_area_userensure") // corrected from `id_salt` to `id_source`
-                        .max_height(400.0)
+                        .max_height(f32::INFINITY)
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 for job in self.job_handler.get_jobs() {
@@ -297,7 +301,7 @@ impl ZApp {
                     ui.label("Executing Jobs...");
                     ScrollArea::vertical()
                         .id_salt("scroll_area_dowork") // corrected from `id_salt` to `id_source`
-                        .max_height(400.0)
+                        .max_height(f32::INFINITY)
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let job_progress = self.job_handler.get_job_progress();
@@ -343,7 +347,7 @@ impl ZApp {
                     ui.label("Finished executing jobs...");
                     ScrollArea::vertical()
                         .id_salt("scroll_area_dowork") // corrected from `id_salt` to `id_source`
-                        .max_height(400.0)
+                        .max_height(f32::INFINITY)
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let job_progress = self.job_handler.get_job_progress();
@@ -436,28 +440,32 @@ impl eframe::App for ZApp {
                 self.startup(ctx, frame);
                 self.state = AppState::UserSetup;
             }
-            AppState::InteractiveTesting => {}
             AppState::UserSetup => {
-                if Self::INTERACTIVE_TESTING {
-                    self.draw_ui_interactive_testing(ctx, frame);
+                let response = if Self::INTERACTIVE_TESTING {
+                    self.draw_ui_interactive_testing(ctx, frame)
                 } else {
-                    self.draw_ui_usersetup(ctx, frame);
-                }
+                    self.draw_ui_usersetup(ctx, frame)
+                };
+
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
             }
             AppState::UserEnsure => {
-                self.draw_ui_userensure(ctx, frame);
+                let response = self.draw_ui_userensure(ctx, frame);
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
             }
             AppState::DoWork => {
-                self.draw_ui_dowork(ctx, frame);
+                let response = self.draw_ui_dowork(ctx, frame);
                 self.job_handler.update();
                 ctx.request_repaint();
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
             }
             AppState::AllWorkDone => {
                 if Self::INTERACTIVE_TESTING {
                     self.state = AppState::UserSetup;
                     return;
                 }
-                self.draw_ui_finished(ctx, frame);
+                let response = self.draw_ui_finished(ctx, frame);
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
             }
             AppState::Exit => {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
