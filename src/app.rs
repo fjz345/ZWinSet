@@ -1,9 +1,14 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    fs::{self, File},
+    io::BufWriter,
+    sync::{Arc, Mutex},
+};
 
 use crate::{
     all_jobs::ALL_JOBS,
     image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler},
+    json_file::{JsonSelectedFiles, read_json_selected},
 };
 
 use eframe::{
@@ -71,8 +76,41 @@ impl ZApp {
         }
     }
 
+    fn init_read_json_selected(&mut self) {
+        let jobs_selected_from_file = read_json_selected("selected_jobs.json");
+        match jobs_selected_from_file {
+            Ok(r) => {
+                let lowercase_r_result: Vec<_> =
+                    r.selected_jobs.iter().map(|s| s.to_lowercase()).collect();
+                self.job_during_selection
+                    .iter_mut()
+                    .for_each(|(job, active)| {
+                        *active = lowercase_r_result.contains(&job.name().to_lowercase())
+                    });
+            }
+            Err(e) => {
+                log::error!("{e}");
+                log::info!("Creating selected_jobs.json for next time...");
+                // Create it for next time
+                let file = File::create("selected_jobs.json");
+                match file {
+                    Ok(f) => {
+                        let writer = BufWriter::new(f);
+                        if let Err(e) =
+                            serde_json::to_writer_pretty(writer, &JsonSelectedFiles::default())
+                        {
+                            log::error!("{e}");
+                        }
+                    }
+                    Err(e) => log::error!("{e}"),
+                }
+            }
+        }
+    }
+
     fn init(&mut self) {
         self.job_during_selection = ALL_JOBS.iter().cloned().map(|job| (job, false)).collect();
+        self.init_read_json_selected();
     }
 
     fn startup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {

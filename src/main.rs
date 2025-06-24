@@ -14,6 +14,7 @@ mod commands;
 mod error;
 mod image;
 mod jobs;
+mod json_file;
 mod logger;
 mod windows;
 
