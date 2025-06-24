@@ -37,7 +37,7 @@ Follow instructions on screen, steps include:
 * [D] battlenet
 * [D] powertoys
 
-* [D] shift spam fix
+* [T] shift spam fix
 * [D] wsl
 * [D] remove cortana
 * [D] developer mode
