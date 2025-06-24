@@ -13,6 +13,8 @@ Follow instructions on screen, steps include:
 * Confirm
 * Wait until jobs are done (if require admin, require manual click)
 
+Note that not all jobs are correctly working, check the status of each job in the README.md
+
 ## Todo
 * Add remove for -AllUsers as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,", this requires admin privilige
 * Interactive testing mode launch parameter
