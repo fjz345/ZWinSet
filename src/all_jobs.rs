@@ -244,16 +244,19 @@ pub static ALL_JOBS: &[Job] = &[
         explination: "Install Notepad++ (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$nppInstaller = "$env:TEMP\npp_installer.exe""#),
-            StaticPowerShellCommand::new(
-                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Invoke-WebRequest -Uri "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest/download/npp.8.6.8.Installer.x64.exe" -OutFile $nppInstaller"#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Start-Process -FilePath $nppInstaller -ArgumentList "/S" -Wait"#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Remove-Item $nppInstaller"#,
-            ),
+            StaticPowerShellCommand::new(r#"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+$release = Invoke-RestMethod -Uri "https://api.github.com/repos/notepad-plus-plus/notepad-plus-plus/releases/latest"
+$installerAsset = $release.assets | Where-Object { $_.name -like "*.Installer.x64.exe" } | Select-Object -First 1
+
+$nppInstaller = "$env:TEMP\\npp_installer.exe"
+Invoke-WebRequest -Uri $installerAsset.browser_download_url -OutFile $nppInstaller -UseBasicParsing
+
+Start-Process -FilePath $nppInstaller -ArgumentList "/S" -Wait
+
+Remove-Item $nppInstaller"#
+),
         ],
         name: "Notepad++",
     }),

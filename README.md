@@ -32,12 +32,12 @@ Follow instructions on screen, steps include:
 * [D] logitech
 * [D] steam
 * [D] discord
-* [D] notepad++
+* [T] notepad++
 * [D] visual code
 * [D] helix
 * [D] mullvad
 * [D] battlenet
-* [D] powertoys
+* [T] powertoys
 
 * [T] shift spam fix
 * [D] wsl
