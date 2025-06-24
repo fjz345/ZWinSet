@@ -295,7 +295,7 @@ Set-SleepTimeout -timeoutSeconds 0"#],
         explination: "Remove Cortana (Not Tested)",
         category: JobCategory::Windows,
         list_of_commands: &[
-            r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,
+            r#"Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,
             r#"Write-Host "✅ Cortana has been removed for all users.""#,
         ],
         require_admin: false, // Removes from all user if true

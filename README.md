@@ -14,6 +14,7 @@ Follow instructions on screen, steps include:
 * Wait until jobs are done (if require admin, require manual click)
 
 ## Todo
+* Add remove for -AllUsers as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,", this requires admin privilige
 * Interactive testing mode launch parameter
 * Dependencies (InstallChrome -> Set Chrome default)
 * Better finish screen
@@ -39,7 +40,7 @@ Follow instructions on screen, steps include:
 
 * [T] shift spam fix
 * [D] wsl
-* [D] remove cortana
+* [T] remove cortana
 * [D] developer mode
 * [T] power mode performance
 * [T] windows power - do not turn off
