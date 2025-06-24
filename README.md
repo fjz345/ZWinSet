@@ -14,7 +14,6 @@ Follow instructions on screen, steps include:
 * Wait until jobs are done (if require admin, require manual click)
 
 ## Todo
-* Fix require_admin to be per powershellcommand instead of Job as not all powershellcommands within a job requires it.
 * Add remove for -AllUsers as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,", this requires admin privilige
 * Interactive testing mode launch parameter
 * Dependencies (InstallChrome -> Set Chrome default)

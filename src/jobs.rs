@@ -81,15 +81,7 @@ impl JobStep {
 
 impl Job {
     pub fn require_admin(&self) -> bool {
-        match self {
-            Job::PowerShellCommand(job) => job.require_admin,
-            Job::PowerShellRegKey(job) => job.require_admin,
-            Job::InstallApplication(job) => job.require_admin,
-            Job::RustFunction(job) => {
-                log::error!("require_admin() should not be called for RustFunction");
-                false
-            }
-        }
+        self.job_steps().into_iter().any(|f| f.require_admin())
     }
     pub fn job_steps(&self) -> impl Iterator<Item = JobStep> {
         let steps: Vec<JobStep> = match self {
@@ -147,14 +139,62 @@ trait ExecutableJob {
 }
 
 pub type PowerShellCommand = String;
+#[derive(Debug, PartialEq)]
+pub struct StaticPowerShellCommand {
+    pub cmd: &'static str,
+    pub requires_admin: RequireAdmin,
+}
+
+impl From<&'static str> for StaticPowerShellCommand {
+    fn from(value: &'static str) -> Self {
+        Self {
+            cmd: value,
+            requires_admin: RequireAdmin::default(),
+        }
+    }
+}
+
+impl StaticPowerShellCommand {
+    pub const fn new(cmd: &'static str) -> Self {
+        Self {
+            cmd: cmd,
+            requires_admin: RequireAdmin::const_default(),
+        }
+    }
+    pub const fn req_admin(mut self) -> Self {
+        self.requires_admin = RequireAdmin::YES;
+        self
+    }
+}
+
+#[derive(Default, Debug, PartialEq, Clone, Copy)]
+pub enum RequireAdmin {
+    #[default]
+    NO,
+    YES,
+}
+
+impl Into<bool> for RequireAdmin {
+    fn into(self) -> bool {
+        match self {
+            RequireAdmin::NO => false,
+            RequireAdmin::YES => true,
+        }
+    }
+}
+
+impl RequireAdmin {
+    pub const fn const_default() -> Self {
+        RequireAdmin::NO
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PowerShellCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
-    pub(crate) list_of_commands: &'static [&'static str],
-    pub(crate) require_admin: bool,
+    pub(crate) list_of_commands: &'static [StaticPowerShellCommand],
 }
 
 impl ExecutableJob for PowerShellCtx {
@@ -163,9 +203,9 @@ impl ExecutableJob for PowerShellCtx {
     }
 
     fn jobs_steps(&self) -> impl Iterator<Item = JobStep> {
-        self.list_of_commands.iter().map(|f| JobStep {
-            command: f.to_string(),
-            require_admin: self.require_admin,
+        self.list_of_commands.iter().map(|(f)| JobStep {
+            command: f.cmd.to_string(),
+            require_admin: f.requires_admin.into(),
             post_fn: None,
         })
     }

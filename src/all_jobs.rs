@@ -1,7 +1,7 @@
 use crate::{
     jobs::{
         InstallApplicationCtx, Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey,
-        RegKeyType, RustFunctionCtx,
+        RegKeyType, RequireAdmin, RustFunctionCtx, StaticPowerShellCommand,
     },
     windows::disable_sticky_keys,
 };
@@ -11,191 +11,262 @@ pub static ALL_JOBS: &[Job] = &[
         explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,
         list_of_commands: &[
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
-            "Start-Sleep -Milliseconds 200",
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
         ],
         name: "Test",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Google Chrome (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe""#,
-            r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe";Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chromeInstaller"#,
-            r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -NoNewWindow -Wait"#,
-            r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Remove-Item $chromeInstaller"#,
+            StaticPowerShellCommand::new(r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe";Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chromeInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -NoNewWindow -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Remove-Item $chromeInstaller"#,
+            ),
         ],
         name: "Chrome",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Steam (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$steamInstaller = "$env:TEMP\steam_installer.exe""#,
-            r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Invoke-WebRequest -Uri "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe" -OutFile $steamInstaller"#,
-            r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Start-Process -FilePath $steamInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
-            r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Remove-Item $steamInstaller"#,
+            StaticPowerShellCommand::new(r#"$steamInstaller = "$env:TEMP\steam_installer.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Invoke-WebRequest -Uri "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe" -OutFile $steamInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Start-Process -FilePath $steamInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Remove-Item $steamInstaller"#,
+            ),
         ],
         name: "Steam",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Discord (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe""#,
-            r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Invoke-WebRequest -Uri "https://discord.com/api/download?platform=win" -OutFile $discordInstaller"#,
-            r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Start-Process -FilePath $discordInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
-            r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Remove-Item $discordInstaller"#,
+            StaticPowerShellCommand::new(r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Invoke-WebRequest -Uri "https://discord.com/api/download?platform=win" -OutFile $discordInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Start-Process -FilePath $discordInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Remove-Item $discordInstaller"#,
+            ),
         ],
         name: "Discord",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Nvidia App (Drivers) (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1 | iex"#,
-            r#"Install-NvidiaApp.ps1 -Edition Public -SilentInstall -SkipCheck"#,
+            StaticPowerShellCommand::new(
+                r#"irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1 | iex"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"Install-NvidiaApp.ps1 -Edition Public -SilentInstall -SkipCheck"#,
+            ),
         ],
         name: "Nvidia App",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Nvidia Broadcast (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe""#,
-            r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Invoke-WebRequest -Uri "https://developer.nvidia.com/compute/broadcast-sdk/redist/nvidia_broadcast_app_latest.exe" -OutFile $broadcastInstaller"#,
-            r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Start-Process -FilePath $broadcastInstaller -ArgumentList "/silent" -Wait"#,
-            r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Remove-Item $broadcastInstaller"#,
+            StaticPowerShellCommand::new(
+                r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe""#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Invoke-WebRequest -Uri "https://developer.nvidia.com/compute/broadcast-sdk/redist/nvidia_broadcast_app_latest.exe" -OutFile $broadcastInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Start-Process -FilePath $broadcastInstaller -ArgumentList "/silent" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Remove-Item $broadcastInstaller"#,
+            ),
         ],
         name: "Nvidia Broadcast",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Logitech Hub (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe""#,
-            r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
-            r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Start-Process -FilePath $logitechInstaller -ArgumentList "--silent" -Wait"#,
-            r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Remove-Item $logitechInstaller"#,
+            StaticPowerShellCommand::new(r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Start-Process -FilePath $logitechInstaller -ArgumentList "--silent" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Remove-Item $logitechInstaller"#,
+            ),
         ],
         name: "Logitech Hub",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Visual Code (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe""#,
-            r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64-user/stable" -OutFile $vsCodeInstaller"#,
-            r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Start-Process -FilePath $vsCodeInstaller -ArgumentList "/silent", "/mergetasks=!runcode" -Wait"#,
-            r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Remove-Item $vsCodeInstaller"#,
+            StaticPowerShellCommand::new(r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64-user/stable" -OutFile $vsCodeInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Start-Process -FilePath $vsCodeInstaller -ArgumentList "/silent", "/mergetasks=!runcode" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Remove-Item $vsCodeInstaller"#,
+            ),
         ],
         name: "Visual Code",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Mullvad VPN (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe""#,
-            r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Invoke-WebRequest -Uri "https://mullvad.net/download/app/win/latest/" -OutFile $mullvadInstaller"#,
-            r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Start-Process -FilePath $mullvadInstaller -ArgumentList "/S" -Wait"#,
-            r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Remove-Item $mullvadInstaller"#,
+            StaticPowerShellCommand::new(r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Invoke-WebRequest -Uri "https://mullvad.net/download/app/win/latest/" -OutFile $mullvadInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Start-Process -FilePath $mullvadInstaller -ArgumentList "/S" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Remove-Item $mullvadInstaller"#,
+            ),
         ],
         name: "Mullvad",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Helix (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix""#,
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://github.com/helix-editor/helix/releases/latest/download/helix-windows.zip" -OutFile $helixZip"#,
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";if (-Not (Test-Path $installDir)) {
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix""#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://github.com/helix-editor/helix/releases/latest/download/helix-windows.zip" -OutFile $helixZip"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";if (-Not (Test-Path $installDir)) {
                 New-Item -ItemType Directory -Path $installDir | Out-Null
             }"#,
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Add-Type -AssemblyName System.IO.Compression.FileSystem
+            ),
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($helixZip, $installDir, $true)"#,
-            r#"Remove-Item $helixZip"#,
-            r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            ),
+            StaticPowerShellCommand::new(r#"Remove-Item $helixZip"#),
+            StaticPowerShellCommand::new(
+                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
  if (-Not $userPath.Split(';') -contains $installDir) {
      [Environment]::SetEnvironmentVariable("Path", "$userPath;$installDir", "User")
  }"#,
+            ),
         ],
         name: "Helix",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Battlenet (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe""#,
-            r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Invoke-WebRequest -Uri "https://www.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe" -OutFile $bnetInstaller"#,
-            r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Start-Process -FilePath $bnetInstaller -ArgumentList "/SILENT" -Wait"#,
-            r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Remove-Item $bnetInstaller"#,
+            StaticPowerShellCommand::new(r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Invoke-WebRequest -Uri "https://www.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe" -OutFile $bnetInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Start-Process -FilePath $bnetInstaller -ArgumentList "/SILENT" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Remove-Item $bnetInstaller"#,
+            ),
         ],
         name: "Battlenet",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install PowerToys (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Downloading...'; curl.exe -L -o $powertoysInstaller 'https://github.com/microsoft/PowerToys/releases/download/v0.81.1/PowerToysSetup-0.81.1-x64.exe'"#,
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';if ((Get-Item $powertoysInstaller).Length -lt 1024kb) { Write-Host 'Download failed or file too small.'; exit 1 }"#,
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
+            StaticPowerShellCommand::new(
+                r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Downloading...'; curl.exe -L -o $powertoysInstaller 'https://github.com/microsoft/PowerToys/releases/download/v0.81.1/PowerToysSetup-0.81.1-x64.exe')"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';if ((Get-Item $powertoysInstaller).Length -lt 1024kb) { Write-Host 'Download failed or file too small.'; exit 1 }"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
+            ).req_admin(),
+            StaticPowerShellCommand::new(
+                r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
+            ),
         ],
         name: "PowerToys",
-        require_admin: true,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install WSL (Not Tested Yet)",
         category: JobCategory::Windows,
         list_of_commands: &[
-            r#"if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+            StaticPowerShellCommand::new(
+                r#"if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
                 Write-Host "❗ Please run this script as Administrator." -ForegroundColor Red
                 return
             }"#,
-            r#"wsl --install --quiet"#,
+            ).req_admin(),
+            StaticPowerShellCommand::new(r#"wsl --install --quiet"#).req_admin(),
         ],
         name: "WSL",
-        require_admin: true,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Notepad++ (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$nppInstaller = "$env:TEMP\npp_installer.exe""#,
-            r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Invoke-WebRequest -Uri "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest/download/npp.8.6.8.Installer.x64.exe" -OutFile $nppInstaller"#,
-            r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Start-Process -FilePath $nppInstaller -ArgumentList "/S" -Wait"#,
-            r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Remove-Item $nppInstaller"#,
+            StaticPowerShellCommand::new(r#"$nppInstaller = "$env:TEMP\npp_installer.exe""#),
+            StaticPowerShellCommand::new(
+                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Invoke-WebRequest -Uri "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest/download/npp.8.6.8.Installer.x64.exe" -OutFile $nppInstaller"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Start-Process -FilePath $nppInstaller -ArgumentList "/S" -Wait"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$nppInstaller = "$env:TEMP\npp_installer.exe";Remove-Item $nppInstaller"#,
+            ),
         ],
         name: "Notepad++",
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "PowerMode High Performance",
         explination: "Windows PowerMode High Performance (Not Tested Yet)",
         category: JobCategory::Windows,
         list_of_commands: &[
-            r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]}"#,
-            r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]};if ($highPerf) {
+            StaticPowerShellCommand::new(
+                r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]}"#,
+            ),
+            StaticPowerShellCommand::new(
+                r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]};if ($highPerf) {
     Write-Host "👉 Setting power plan to High performance ($highPerf)..."
     powercfg -S $highPerf
     Write-Host "✅ Power mode set to High performance."
@@ -212,14 +283,15 @@ pub static ALL_JOBS: &[Job] = &[
         Write-Host "❌ Failed to set High performance plan."
     }
 }"#,
+            ),
         ],
-        require_admin: false,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Display timeout 30min",
         explination: "When plugged in, turn off my screen after 30 minutes",
         category: JobCategory::Windows,
-        list_of_commands: &[r#"
+        list_of_commands: &[StaticPowerShellCommand::new(
+            r#"
 function Set-DisplayTimeout {
     param (
         [int]$timeoutSeconds
@@ -252,14 +324,15 @@ function Set-DisplayTimeout {
 
 # Example: Set display timeout to 1800 seconds (30 minutes)
 Set-DisplayTimeout -timeoutSeconds 1800
-"#],
-        require_admin: false,
+"#,
+        )],
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Never Sleep",
         explination: "When plugged in, put my device to sleep after Never",
         category: JobCategory::Windows,
-        list_of_commands: &[r#"function Set-SleepTimeout {
+        list_of_commands: &[StaticPowerShellCommand::new(
+            r#"function Set-SleepTimeout {
     param (
         [int]$timeoutSeconds
     )
@@ -287,23 +360,21 @@ Set-DisplayTimeout -timeoutSeconds 1800
 }
 
 # Example: Set sleep timeout to never (0 seconds)
-Set-SleepTimeout -timeoutSeconds 0"#],
-        require_admin: false,
+Set-SleepTimeout -timeoutSeconds 0"#,
+        )],
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Remove Cortana",
         explination: "Remove Cortana (Not Tested)",
         category: JobCategory::Windows,
-        list_of_commands: &[
+        list_of_commands: &[StaticPowerShellCommand::new(
             r#"Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,
-        ],
-        require_admin: false, // Removes from all user if true
+        )],
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "EnableVoiceTyping 0",
         explination: r#"RegKey HKCU:\Software\Microsoft\Input\Settings EnableVoiceTyping 0"#,
         category: JobCategory::Windows,
-
         require_admin: false,
         reg_keys: &[RegKey {
             path: r#"HKCU:\Software\Microsoft\Input\Settings"#,
@@ -381,7 +452,8 @@ Set-SleepTimeout -timeoutSeconds 0"#],
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Windows mouse acceleration is on by default",
         category: JobCategory::Windows,
-        list_of_commands: &[r#"
+        list_of_commands: &[StaticPowerShellCommand::new(
+            r#"
 # Set registry values
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "0"
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "0"
@@ -408,8 +480,8 @@ public class NativeMethods {
 
 # Apply mouse settings
 [NativeMethods]::SystemParametersInfo($SPI_SETMOUSE, 0, $mouseParams, $SPIF_UPDATEINIFILE -bor $SPIF_SENDCHANGE)
-            "#],
+            "#,
+        )],
         name: "Mouse Acceleration",
-        require_admin: false,
     }),
 ];
