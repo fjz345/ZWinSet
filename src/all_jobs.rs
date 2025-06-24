@@ -156,12 +156,13 @@ pub static ALL_JOBS: &[Job] = &[
         explination: "Install PowerToys (Not Tested Yet)",
         category: JobCategory::Application,
         list_of_commands: &[
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Downloading...'; Invoke-WebRequest -Uri 'https://github.com/microsoft/PowerToys/releases/latest/download/PowerToysSetup-x64.exe' -OutFile $powertoysInstaller -UseBasicParsing"#,
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
-            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Downloading...'; curl.exe -L -o $powertoysInstaller 'https://github.com/microsoft/PowerToys/releases/download/v0.81.1/PowerToysSetup-0.81.1-x64.exe'"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';if ((Get-Item $powertoysInstaller).Length -lt 1024kb) { Write-Host 'Download failed or file too small.'; exit 1 }"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
+            r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
         ],
         name: "PowerToys",
-        require_admin: false,
+        require_admin: true,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install WSL (Not Tested Yet)",
