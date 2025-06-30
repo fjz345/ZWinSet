@@ -460,7 +460,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         },
     ],
     require_admin: false,
-    post_fn: Some(||{clear_recent_files();restart_explorer();}),tested: JobReadyState::NOTTESTED,
+    post_fn: Some(||{clear_recent_files();restart_explorer();}),tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Developer Mode",
