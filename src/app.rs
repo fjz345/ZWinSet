@@ -507,6 +507,7 @@ impl ZApp {
     }
 }
 
+const WINDOWS_WINDOW_BAR_HEIGHT: Vec2 = Vec2::new(0.0, 16.0);
 impl eframe::App for ZApp {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         log::info!("SAVING...");
@@ -532,17 +533,23 @@ impl eframe::App for ZApp {
                     self.draw_ui_usersetup(ctx, frame)
                 };
 
-                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(
+                    response.rect.size() + WINDOWS_WINDOW_BAR_HEIGHT,
+                ));
             }
             AppState::UserEnsure => {
                 let response = self.draw_ui_userensure(ctx, frame);
-                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(
+                    response.rect.size() + WINDOWS_WINDOW_BAR_HEIGHT,
+                ));
             }
             AppState::DoWork => {
                 let response = self.draw_ui_dowork(ctx, frame);
                 self.job_handler.update();
                 ctx.request_repaint();
-                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(
+                    response.rect.size() + WINDOWS_WINDOW_BAR_HEIGHT,
+                ));
             }
             AppState::AllWorkDone => {
                 if Self::INTERACTIVE_TESTING {
@@ -550,7 +557,9 @@ impl eframe::App for ZApp {
                     return;
                 }
                 let response = self.draw_ui_finished(ctx, frame);
-                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(response.rect.size()));
+                ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(
+                    response.rect.size() + WINDOWS_WINDOW_BAR_HEIGHT,
+                ));
             }
             AppState::Exit => {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
