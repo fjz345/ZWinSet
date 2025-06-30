@@ -14,8 +14,8 @@ use crate::{
 use eframe::{
     CreationContext,
     egui::{
-        self, ImageSource, Layout, PointerButton, Pos2, ProgressBar, Response, ScrollArea,
-        TextureHandle, Vec2,
+        self, Color32, ImageSource, Layout, PointerButton, Pos2, ProgressBar, Response, RichText,
+        ScrollArea, TextureHandle, Vec2,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -215,7 +215,13 @@ impl ZApp {
                 .find(|(jjob, _value)| jjob == job)
                 .map(|f| &mut f.1)
                 .expect("failure");
-            let checkbox_response = ui.checkbox(&mut checkbox_value, &job_name);
+
+            let job_text_color = match job.ready_state() {
+                crate::jobs::JobReadyState::NOTTESTED => Color32::YELLOW,
+                crate::jobs::JobReadyState::VERIFIED => Color32::WHITE,
+            };
+            let job_text = RichText::new(&job_name).color(job_text_color);
+            let checkbox_response = ui.checkbox(&mut checkbox_value, job_text);
             is_checked = *checkbox_value;
             checkbox_response
         });

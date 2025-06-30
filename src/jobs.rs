@@ -79,6 +79,14 @@ impl JobStep {
 }
 
 impl Job {
+    pub fn ready_state(&self) -> JobReadyState {
+        match self {
+            Job::PowerShellCommand(job) => job.tested,
+            Job::InstallApplication(_job) => JobReadyState::const_default(),
+            Job::PowerShellRegKey(job) => job.tested,
+            Job::RustFunction(_job) => JobReadyState::const_default(),
+        }
+    }
     pub fn require_admin(&self) -> bool {
         self.job_steps().into_iter().any(|f| f.require_admin())
     }
