@@ -204,6 +204,7 @@ impl RequireAdmin {
 pub enum JobReadyState {
     #[default]
     NOTTESTED,
+    NOTWORKING,
     VERIFIED,
 }
 
@@ -211,6 +212,7 @@ impl Into<bool> for JobReadyState {
     fn into(self) -> bool {
         match self {
             JobReadyState::NOTTESTED => false,
+            JobReadyState::NOTWORKING => false,
             JobReadyState::VERIFIED => true,
         }
     }
