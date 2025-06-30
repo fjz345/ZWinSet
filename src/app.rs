@@ -270,7 +270,7 @@ impl ZApp {
                         }
                     });
 
-                    // Made by FjZ345
+                    ui.label("Tested on Windows 10");
                     ui.label("Made by FjZ345");
                 });
             })
@@ -318,6 +318,9 @@ impl ZApp {
                             self.state = AppState::DoWork;
                         }
                     });
+
+                    ui.label("Tested on Windows 10");
+                    ui.label("Made by FjZ345");
                 });
             })
         });
