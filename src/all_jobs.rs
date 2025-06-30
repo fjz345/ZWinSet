@@ -523,4 +523,139 @@ public class NativeMethods {
         )],
         name: "Mouse Acceleration",tested: JobReadyState::VERIFIED,
     }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable diagnostic data collection",
+        explination: "Disables Windows DataCollection",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"#,
+                name: r#"AllowTelemetry"#,
+                value: r#"0"#,
+                key_type: RegKeyType::DWORD,
+            },
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable Windows Tips & Suggestions",
+        explination: "ContentDeliveryManager RegKeys",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"#,
+                name: r#"SubscribedContent-338387Enabled"#,
+                value: r#"0"#,
+                key_type: RegKeyType::DWORD,
+            },
+            RegKey {
+                path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"#,
+                name: r#"SystemPaneSuggestionsEnabled"#,
+                value: r#"0"#,
+                key_type: RegKeyType::DWORD,
+            },
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable Location Tracking",
+        explination: "CapabilityAccessManager RegKeys",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"#,
+                name: r#"Value"#,
+                value: r#"Deny"#,
+                key_type: RegKeyType::STRING,
+            }
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable Ads in Start Menu and Lock Screen",
+        explination: "ContentDeliveryManager RegKeys",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"#,
+                name: r#"SilentInstalledAppsEnabled"#,
+                value: r#"0"#,
+                key_type: RegKeyType::DWORD,
+            },
+            RegKey {
+                path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"#,
+                name: r#"SystemPaneSuggestionsEnabled"#,
+                value: r#"0"#,
+                key_type: RegKeyType::DWORD,
+            }
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable Microsoft Consumer Experience",
+        explination: "suggested apps on new installs",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"#,
+                name: r#"DisableWindowsConsumerFeatures"#,
+                value: r#"1"#,
+                key_type: RegKeyType::DWORD,
+            }
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable OneDrive",
+        explination: "",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive"#,
+                name: r#"DisableFileSyncNGSC"#,
+                value: r#"1"#,
+                key_type: RegKeyType::DWORD,
+            }
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+        name: "Disable Update Auto-Restart",
+        explination: "Disable Windows Update Auto-Restart",
+        category: JobCategory::Windows,
+        reg_keys: &[
+            RegKey {
+                path: r#"HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"#,
+                name: r#"NoAutoRebootWithLoggedOnUsers"#,
+                value: r#"1"#,
+                key_type: RegKeyType::DWORD,
+            }
+        ],
+        require_admin: false,
+        post_fn: None,
+        tested: JobReadyState::NOTTESTED,
+    }),
+    Job::PowerShellCommand(PowerShellCtx {
+        explination: "Will disable searching with windows explorer",
+        category: JobCategory::Windows,
+        list_of_commands: &[StaticPowerShellCommand::new(
+            r#"Stop-Service -Name "WSearch""#,
+        ),
+        StaticPowerShellCommand::new(
+            r#"Set-Service -Name "WSearch" -StartupType Disabled"#,
+        )],
+        name: "Disable Search",tested: JobReadyState::NOTTESTED,
+    }),
 ];
