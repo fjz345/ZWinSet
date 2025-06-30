@@ -300,7 +300,7 @@ impl ZApp {
             })
         });
 
-        outmost_response.response
+        outmost_response.inner.response
     }
 
     fn draw_ui_userensure(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
@@ -363,7 +363,7 @@ impl ZApp {
             })
         });
 
-        outmost_response.response
+        outmost_response.inner.response
     }
 
     fn draw_ui_dowork(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
@@ -412,7 +412,7 @@ impl ZApp {
             })
         });
 
-        outmost_response.response
+        outmost_response.inner.response
     }
 
     fn draw_ui_finished(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
@@ -470,7 +470,7 @@ impl ZApp {
             })
         });
 
-        outmost_response.response
+        outmost_response.inner.response
     }
 
     fn process_ctx_inputs(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
