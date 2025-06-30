@@ -10,6 +10,8 @@ I am tired of reinstalling all applications and set all 10 windows settings and 
 
 This is a multi threaded tool I made to reinstall and setup my windows installation.
 
+It has been tested on Windows 10
+
 ## Usage
 Follow instructions on screen, steps include:
 * Select jobs to execute
@@ -54,6 +56,7 @@ Note that not all jobs are correctly working, check the status of each job in th
 * [T] mouse acceleration
 * [T] remove "searchbar"
 * [D] Computer\HKEY_CURRENT_USER\Software\Microsoft\input\Settings EnableVoiceTyping 0
+* [T] Recommended start menu
 
 * Windows ad settings
 * Windows remove password
