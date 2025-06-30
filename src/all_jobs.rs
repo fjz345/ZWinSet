@@ -1,11 +1,13 @@
 use crate::{
     jobs::{
-        Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
+        Job, JobCategory, JobReadyState, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
         StaticPowerShellCommand,
     },
     windows::{clear_recent_files, disable_sticky_keys, restart_explorer},
 };
 
+// Formatting does not work
+#[rustfmt::skip] 
 pub static ALL_JOBS: &[Job] = &[
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Dev Test, 2 sec duration",
@@ -23,6 +25,7 @@ pub static ALL_JOBS: &[Job] = &[
             StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
         ],
         name: "Test",
+        tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Google Chrome (Not Tested Yet)",
@@ -39,7 +42,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Remove-Item $chromeInstaller"#,
             ),
         ],
-        name: "Chrome",
+        name: "Chrome",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Steam (Not Tested Yet)",
@@ -56,7 +59,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Remove-Item $steamInstaller"#,
             ),
         ],
-        name: "Steam",
+        name: "Steam",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Discord (Not Tested Yet)",
@@ -73,7 +76,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Remove-Item $discordInstaller"#,
             ),
         ],
-        name: "Discord",
+        name: "Discord",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Nvidia App (Drivers) (Not Tested Yet)",
@@ -86,7 +89,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"Install-NvidiaApp.ps1 -Edition Public -SilentInstall -SkipCheck"#,
             ),
         ],
-        name: "Nvidia App",
+        name: "Nvidia App",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Nvidia Broadcast (Not Tested Yet)",
@@ -105,7 +108,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Remove-Item $broadcastInstaller"#,
             ),
         ],
-        name: "Nvidia Broadcast",
+        name: "Nvidia Broadcast",  tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Logitech Hub (Not Tested Yet)",
@@ -122,7 +125,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Remove-Item $logitechInstaller"#,
             ),
         ],
-        name: "Logitech Hub",
+        name: "Logitech Hub",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Visual Code (Not Tested Yet)",
@@ -139,7 +142,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Remove-Item $vsCodeInstaller"#,
             ),
         ],
-        name: "Visual Code",
+        name: "Visual Code",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Mullvad VPN (Not Tested Yet)",
@@ -156,7 +159,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Remove-Item $mullvadInstaller"#,
             ),
         ],
-        name: "Mullvad",
+        name: "Mullvad",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Helix (Not Tested Yet)",
@@ -188,7 +191,7 @@ pub static ALL_JOBS: &[Job] = &[
  }"#,
             ),
         ],
-        name: "Helix",
+        name: "Helix",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Battlenet (Not Tested Yet)",
@@ -205,7 +208,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Remove-Item $bnetInstaller"#,
             ),
         ],
-        name: "Battlenet",
+        name: "Battlenet",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install PowerToys (Not Tested Yet)",
@@ -224,7 +227,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
             ),
         ],
-        name: "PowerToys",
+        name: "PowerToys",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install WSL (Not Tested Yet)",
@@ -238,7 +241,7 @@ pub static ALL_JOBS: &[Job] = &[
             ).req_admin(),
             StaticPowerShellCommand::new(r#"wsl --install --quiet"#).req_admin(),
         ],
-        name: "WSL",
+        name: "WSL",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Notepad++ (Not Tested Yet)",
@@ -258,7 +261,7 @@ Start-Process -FilePath $nppInstaller -ArgumentList "/S" -Wait
 Remove-Item $nppInstaller"#
 ),
         ],
-        name: "Notepad++",
+        name: "Notepad++",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "PowerMode High Performance",
@@ -287,7 +290,7 @@ Remove-Item $nppInstaller"#
     }
 }"#,
             ),
-        ],
+        ],tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Display timeout 30min",
@@ -328,7 +331,7 @@ function Set-DisplayTimeout {
 # Example: Set display timeout to 1800 seconds (30 minutes)
 Set-DisplayTimeout -timeoutSeconds 1800
 "#,
-        )],
+        )],tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Never Sleep",
@@ -364,7 +367,7 @@ Set-DisplayTimeout -timeoutSeconds 1800
 
 # Example: Set sleep timeout to never (0 seconds)
 Set-SleepTimeout -timeoutSeconds 0"#,
-        )],
+        )],tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "Remove Cortana",
@@ -372,7 +375,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         category: JobCategory::Windows,
         list_of_commands: &[StaticPowerShellCommand::new(
             r#"Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,
-        )],
+        )],tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "EnableVoiceTyping 0",
@@ -385,7 +388,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
             value: r#"0"#,
             key_type: RegKeyType::DWORD,
         }],
-        post_fn: None,
+        post_fn: None,tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Sticky Keys (shift)",
@@ -424,10 +427,10 @@ Set-SleepTimeout -timeoutSeconds 0"#,
             },
         ],
         require_admin: false,
-        post_fn: Some(disable_sticky_keys),
+        post_fn: Some(disable_sticky_keys),tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
-    name: "Disable Recommended/Recent in Start Menu",
+    name: "Disable Recent Start Menu Recommended",
     explination: "Disables Recent Items and Frequent Apps in Windows Start Menu",
     category: JobCategory::Windows,
     reg_keys: &[
@@ -457,7 +460,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         },
     ],
     require_admin: false,
-    post_fn: Some(||{clear_recent_files();restart_explorer();}),
+    post_fn: Some(||{clear_recent_files();restart_explorer();}),tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Developer Mode",
@@ -470,7 +473,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
             key_type: RegKeyType::DWORD,
         }],
         require_admin: true,
-        post_fn: None,
+        post_fn: None,tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Toolbar Search",
@@ -483,7 +486,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
             key_type: RegKeyType::DWORD,
         }],
         require_admin: false,
-        post_fn: None,
+        post_fn: None,tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Windows mouse acceleration is on by default",
@@ -518,6 +521,6 @@ public class NativeMethods {
 [NativeMethods]::SystemParametersInfo($SPI_SETMOUSE, 0, $mouseParams, $SPIF_UPDATEINIFILE -bor $SPIF_SENDCHANGE)
             "#,
         )],
-        name: "Mouse Acceleration",
+        name: "Mouse Acceleration",tested: JobReadyState::VERIFIED,
     }),
 ];

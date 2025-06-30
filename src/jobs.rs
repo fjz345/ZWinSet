@@ -135,6 +135,10 @@ trait ExecutableJob {
         JobCategory::default()
     }
     fn name(&self) -> &'static str;
+
+    fn tested(&self) -> JobReadyState {
+        JobReadyState::const_default()
+    }
 }
 
 pub type PowerShellCommand = String;
@@ -188,15 +192,42 @@ impl RequireAdmin {
     }
 }
 
+#[derive(Default, Debug, PartialEq, Clone, Copy)]
+pub enum JobReadyState {
+    #[default]
+    NOTTESTED,
+    VERIFIED,
+}
+
+impl Into<bool> for JobReadyState {
+    fn into(self) -> bool {
+        match self {
+            JobReadyState::NOTTESTED => false,
+            JobReadyState::VERIFIED => true,
+        }
+    }
+}
+
+impl JobReadyState {
+    pub const fn const_default() -> Self {
+        JobReadyState::NOTTESTED
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct PowerShellCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
     pub(crate) list_of_commands: &'static [StaticPowerShellCommand],
+    pub(crate) tested: JobReadyState,
 }
 
 impl ExecutableJob for PowerShellCtx {
+    fn tested(&self) -> JobReadyState {
+        self.tested
+    }
+
     fn name(&self) -> &'static str {
         self.name
     }
@@ -243,9 +274,13 @@ pub struct PowerShellRegKeyCtx {
     pub(crate) reg_keys: &'static [RegKey],
     pub(crate) require_admin: bool,
     pub(crate) post_fn: Option<fn()>,
+    pub(crate) tested: JobReadyState,
 }
 
 impl ExecutableJob for PowerShellRegKeyCtx {
+    fn tested(&self) -> JobReadyState {
+        self.tested
+    }
     fn name(&self) -> &'static str {
         self.name
     }
