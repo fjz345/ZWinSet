@@ -236,6 +236,8 @@ impl ZApp {
                 ui.vertical(|ui| {
                     // Explination
                     ui.label("Select desiered jobs, then press next to do the jobs");
+                    ui.label(RichText::new("White text is verified working").color(Color32::WHITE));
+                    ui.label(RichText::new("Yellow text is not tested").color(Color32::YELLOW));
                     ui.label("");
                     ui.horizontal(|ui| {
                         for job_category in JobCategory::iter() {
