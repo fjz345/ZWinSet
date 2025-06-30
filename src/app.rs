@@ -190,6 +190,38 @@ impl ZApp {
 
         outmost_response.response
     }
+
+    fn draw_checkbox_job(
+        ui: &mut egui::Ui,
+        job: &Job,
+        admin_icon: TextureHandle,
+        empty_icon: TextureHandle,
+        job_during_selection: &mut Vec<(Job, bool)>,
+    ) -> (Response, bool) {
+        let job_name = format!("{}", job.name());
+        let icon_id = if job.require_admin() {
+            admin_icon.id()
+        } else {
+            empty_icon.id()
+        };
+        let mut is_checked = false;
+        let response = ui.horizontal(|ui| {
+            ui.image(ImageSource::Texture(egui::load::SizedTexture {
+                id: icon_id,
+                size: [12.0, 15.0].into(),
+            }));
+            let mut checkbox_value = job_during_selection
+                .iter_mut()
+                .find(|(jjob, _value)| jjob == job)
+                .map(|f| &mut f.1)
+                .expect("failure");
+            let checkbox_response = ui.checkbox(&mut checkbox_value, &job_name);
+            is_checked = *checkbox_value;
+            checkbox_response
+        });
+        (response.inner, is_checked)
+    }
+
     fn draw_ui_usersetup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
@@ -216,35 +248,19 @@ impl ZApp {
                                             .show(ui, |ui| {
                                                 ui.vertical(|ui| {
                                                     for job in jobs_in_category {
-                                                        let job_name = format!("{}", job.name());
-                                                        let icon_id = if job.require_admin() {
-                                                            self.admin_icon.clone().unwrap().id()
-                                                        } else {
-                                                            self.empty_icon.clone().unwrap().id()
-                                                        };
-                                                        ui.horizontal(|ui| {
-                                                            ui.image(ImageSource::Texture(
-                                                                egui::load::SizedTexture {
-                                                                    id: icon_id,
-                                                                    size: [12.0, 15.0].into(),
-                                                                },
-                                                            ));
-                                                            let mut checkbox_value = self
-                                                                .job_during_selection
-                                                                .iter_mut()
-                                                                .find(|(jjob, _value)| jjob == job)
-                                                                .map(|f| &mut f.1)
-                                                                .expect("failure");
-                                                            let checkbox_response = ui.checkbox(
-                                                                &mut checkbox_value,
-                                                                &job_name,
-                                                            );
-                                                            job_check_responses.push((
-                                                                checkbox_response,
-                                                                *checkbox_value,
+                                                        let (checkbox_response, checkbox_value) =
+                                                            Self::draw_checkbox_job(
+                                                                ui,
                                                                 job,
-                                                            ));
-                                                        });
+                                                                self.admin_icon.clone().unwrap(),
+                                                                self.empty_icon.clone().unwrap(),
+                                                                &mut self.job_during_selection,
+                                                            );
+                                                        job_check_responses.push((
+                                                            checkbox_response,
+                                                            checkbox_value,
+                                                            job,
+                                                        ));
                                                     }
                                                 });
                                             });
@@ -282,6 +298,8 @@ impl ZApp {
     fn draw_ui_userensure(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) -> Response {
         let outmost_response = egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
+                let mut job_check_responses: Vec<(Response, bool, Job)> = Vec::new();
+
                 ui.vertical(|ui| {
                     ui.label("Are you sure you would like to execute these jobs?");
                     ui.label("");
@@ -292,18 +310,21 @@ impl ZApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 for job in self.job_handler.get_jobs() {
-                                    let job_name = format!("{}", job.name());
                                     ui.horizontal(|ui| {
-                                        let icon_id = if job.require_admin() {
-                                            self.admin_icon.clone().unwrap().id()
-                                        } else {
-                                            self.empty_icon.clone().unwrap().id()
-                                        };
-                                        ui.image(ImageSource::Texture(egui::load::SizedTexture {
-                                            id: icon_id,
-                                            size: [12.0, 15.0].into(),
-                                        }));
-                                        ui.checkbox(&mut true, &job_name);
+                                        let job_clone = job.clone();
+                                        let (checkbox_response, checkbox_value) =
+                                            Self::draw_checkbox_job(
+                                                ui,
+                                                &job_clone,
+                                                self.admin_icon.clone().unwrap(),
+                                                self.empty_icon.clone().unwrap(),
+                                                &mut self.job_during_selection,
+                                            );
+                                        job_check_responses.push((
+                                            checkbox_response,
+                                            checkbox_value,
+                                            job_clone,
+                                        ));
                                     });
                                 }
                             });
@@ -315,8 +336,17 @@ impl ZApp {
                             self.state = AppState::UserSetup;
                         }
                         if ui.button("Next").clicked() {
+                            let checked_jobs: Vec<_> = job_check_responses
+                                .iter()
+                                .filter(|response| response.1)
+                                .map(|a| a.2.clone())
+                                .collect();
+
+                            self.job_handler.set_jobs(checked_jobs);
                             self.state = AppState::DoWork;
                         }
+
+                        // Collect jobs selected
                     });
 
                     ui.label("Tested on Windows 10");
