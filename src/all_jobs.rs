@@ -3,7 +3,7 @@ use crate::{
         Job, JobCategory, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
         StaticPowerShellCommand,
     },
-    windows::disable_sticky_keys,
+    windows::{clear_recent_files, disable_sticky_keys, restart_explorer},
 };
 
 pub static ALL_JOBS: &[Job] = &[
@@ -425,6 +425,39 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         ],
         require_admin: false,
         post_fn: Some(disable_sticky_keys),
+    }),
+    Job::PowerShellRegKey(PowerShellRegKeyCtx {
+    name: "Disable Recommended/Recent in Start Menu",
+    explination: "Disables Recent Items and Frequent Apps in Windows Start Menu",
+    category: JobCategory::Windows,
+    reg_keys: &[
+        RegKey {
+            path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"#,
+            name: r#"Start_TrackDocs"#,
+            value: r#"0"#, // disables recently opened documents
+            key_type: RegKeyType::DWORD,
+        },
+        RegKey {
+            path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"#,
+            name: r#"Start_TrackProgs"#,
+            value: r#"0"#, // disables frequently used apps
+            key_type: RegKeyType::DWORD,
+        },
+        RegKey {
+            path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"#,
+            name: r#"NoRecentDocsHistory"#,
+            value: r#"1"#,
+            key_type: RegKeyType::DWORD,
+        },
+        RegKey {
+            path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"#,
+            name: r#"NoRecentDocsMenu"#,
+            value: r#"1"#,
+            key_type: RegKeyType::DWORD,
+        },
+    ],
+    require_admin: false,
+    post_fn: Some(||{clear_recent_files();restart_explorer();}),
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Developer Mode",
