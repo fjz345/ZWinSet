@@ -219,7 +219,8 @@ impl ZApp {
             let job_text_color = match job.ready_state() {
                 crate::jobs::JobReadyState::NOTTESTED => Color32::YELLOW,
                 crate::jobs::JobReadyState::VERIFIED => Color32::WHITE,
-                crate::jobs::JobReadyState::NOTWORKING => Color32::RED,
+                crate::jobs::JobReadyState::NOTWORKING
+                | crate::jobs::JobReadyState::NOTIMPLEMENTED => Color32::RED,
             };
             let job_text = RichText::new(&job_name).color(job_text_color);
             let checkbox_response = ui.checkbox(&mut checkbox_value, job_text);
@@ -532,7 +533,6 @@ impl eframe::App for ZApp {
                 } else {
                     self.draw_ui_usersetup(ctx, frame)
                 };
-
                 ctx.send_viewport_cmd(egui::ViewportCommand::MinInnerSize(
                     response.rect.size() + WINDOWS_WINDOW_BAR_HEIGHT,
                 ));

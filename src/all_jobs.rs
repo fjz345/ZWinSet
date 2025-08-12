@@ -658,4 +658,16 @@ public class NativeMethods {
         )],
         name: "Disable Search",tested: JobReadyState::NOTTESTED,
     }),
+    Job::PowerShellCommand(PowerShellCtx {
+        explination: "Microdick Activation Script",
+        category: JobCategory::Windows,
+        list_of_commands: &[],
+        name: "MAS",tested: JobReadyState::NOTIMPLEMENTED,
+    }),
+    Job::PowerShellCommand(PowerShellCtx {
+        explination: "Show File Explorer Extensions",
+        category: JobCategory::Windows,
+        list_of_commands: &[],
+        name: "Explorer Extensions",tested: JobReadyState::NOTIMPLEMENTED,
+    }),
 ];

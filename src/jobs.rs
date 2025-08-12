@@ -203,6 +203,7 @@ impl RequireAdmin {
 #[derive(Default, Debug, PartialEq, Clone, Copy)]
 pub enum JobReadyState {
     #[default]
+    NOTIMPLEMENTED,
     NOTTESTED,
     NOTWORKING,
     VERIFIED,
@@ -214,6 +215,7 @@ impl Into<bool> for JobReadyState {
             JobReadyState::NOTTESTED => false,
             JobReadyState::NOTWORKING => false,
             JobReadyState::VERIFIED => true,
+            JobReadyState::NOTIMPLEMENTED => false,
         }
     }
 }
