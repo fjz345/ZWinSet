@@ -62,7 +62,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Steam",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Discord (Not Tested Yet)",
+        explination: "Install Discord",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe""#),
@@ -70,7 +70,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Invoke-WebRequest -Uri "https://discord.com/api/download?platform=win" -OutFile $discordInstaller"#,
             ),
             StaticPowerShellCommand::new(
-                r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Start-Process -FilePath $discordInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
+                r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Start-Process -FilePath $discordInstaller -ArgumentList "/S" -Wait"#,
             ),
             StaticPowerShellCommand::new(
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Remove-Item $discordInstaller"#,
@@ -194,7 +194,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Helix",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Battlenet (Not Tested Yet)",
+        explination: "Install Battlenet",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe""#),
@@ -208,7 +208,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Remove-Item $bnetInstaller"#,
             ),
         ],
-        name: "Battlenet",tested: JobReadyState::NOTTESTED,
+        name: "Battlenet",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install PowerToys (Not Tested Yet)",
@@ -669,5 +669,11 @@ public class NativeMethods {
         category: JobCategory::Windows,
         list_of_commands: &[],
         name: "Explorer Extensions",tested: JobReadyState::NOTIMPLEMENTED,
+    }),
+    Job::PowerShellCommand(PowerShellCtx {
+        explination: "Install Firefox",
+        category: JobCategory::Windows,
+        list_of_commands: &[],
+        name: "Firefox",tested: JobReadyState::NOTIMPLEMENTED,
     }),
 ];
