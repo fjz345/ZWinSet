@@ -28,7 +28,7 @@ pub static ALL_JOBS: &[Job] = &[
         tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Google Chrome (Not Tested Yet)",
+        explination: "Install Google Chrome",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe""#),
@@ -45,7 +45,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Chrome",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Steam (Not Tested Yet)",
+        explination: "Install Steam",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$steamInstaller = "$env:TEMP\steam_installer.exe""#),
@@ -79,7 +79,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Discord",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Nvidia App (Drivers) (Not Tested Yet)",
+        explination: "Install Nvidia App (Drivers)",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -92,7 +92,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Nvidia App",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Nvidia Broadcast (Not Tested Yet)",
+        explination: "Install Nvidia Broadcast",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -111,7 +111,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Nvidia Broadcast",  tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Logitech Hub (Not Tested Yet)",
+        explination: "Install Logitech Hub",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe""#),
@@ -128,7 +128,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Logitech Hub",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Visual Code (Not Tested Yet)",
+        explination: "Install Visual Code",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe""#),
@@ -145,7 +145,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Visual Code",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Mullvad VPN (Not Tested Yet)",
+        explination: "Install Mullvad VPN",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe""#),
@@ -162,7 +162,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Mullvad",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Helix (Not Tested Yet)",
+        explination: "Install Helix",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -211,7 +211,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Battlenet",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install PowerToys (Not Tested Yet)",
+        explination: "Install PowerToys",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -230,7 +230,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "PowerToys",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install WSL (Not Tested Yet)",
+        explination: "Install WSL",
         category: JobCategory::Windows,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -244,7 +244,7 @@ pub static ALL_JOBS: &[Job] = &[
         name: "WSL",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Notepad++ (Not Tested Yet)",
+        explination: "Install Notepad++",
         category: JobCategory::Application,
         list_of_commands: &[
             StaticPowerShellCommand::new(r#"
@@ -265,7 +265,7 @@ Remove-Item $nppInstaller"#
     }),
     Job::PowerShellCommand(PowerShellCtx {
         name: "PowerMode High Performance",
-        explination: "Windows PowerMode High Performance (Not Tested Yet)",
+        explination: "Windows PowerMode High Performance",
         category: JobCategory::Windows,
         list_of_commands: &[
             StaticPowerShellCommand::new(
@@ -392,7 +392,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Sticky Keys (shift)",
-        explination: "Disable Sticky Keys (Spam Shift) (Not Tested Yet)",
+        explination: "Disable Sticky Keys (Spam Shift)",
         category: JobCategory::Windows,
         reg_keys: &[
             RegKey {
@@ -464,7 +464,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Developer Mode",
-        explination: "Windows Developer Mode (Not Tested Yet)",
+        explination: "Windows Developer Mode",
         category: JobCategory::Windows,
         reg_keys: &[RegKey {
             path: r#"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"#,
@@ -477,7 +477,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Toolbar Search",
-        explination: "Hides the search bra at the toolbar (Not Tested Yet)",
+        explination: "Hides the search bra at the toolbar",
         category: JobCategory::Windows,
         reg_keys: &[RegKey {
             path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"#,
