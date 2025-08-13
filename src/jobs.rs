@@ -278,7 +278,7 @@ pub struct RegKey {
     pub(crate) key_type: RegKeyType,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct PowerShellRegKeyCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
@@ -287,6 +287,13 @@ pub struct PowerShellRegKeyCtx {
     pub(crate) require_admin: bool,
     pub(crate) post_fn: Option<fn()>,
     pub(crate) tested: JobReadyState,
+}
+
+impl PartialEq for PowerShellRegKeyCtx {
+    fn eq(&self, other: &Self) -> bool {
+        // Name should be enough
+        self.name == other.name && self.tested == other.tested
+    }
 }
 
 impl ExecutableJob for PowerShellRegKeyCtx {
