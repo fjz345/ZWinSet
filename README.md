@@ -21,7 +21,6 @@ Follow instructions on screen, steps include:
 Note that not all jobs are correctly working, check the status of each job in the README.md
 
 ## Todo
-* Limit max number of threads to number of logical cpus -1
 * Automatic usage of "-AllUsers" as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,"
 * Interactive testing mode launch parameter
 * Dependencies (InstallChrome -> Set Chrome default)

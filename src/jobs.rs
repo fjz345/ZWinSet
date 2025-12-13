@@ -7,6 +7,7 @@ use strum_macros::{EnumCount, EnumIter};
 
 use crate::commands::{execute_powershell_as_admin, execute_powershell_command};
 use crate::error::{Result, ZError};
+use crate::threadsafe_atomic_counter::ThreadsafeAtomicCounter;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Job {
@@ -456,10 +457,21 @@ pub struct JobHandler {
     jobs_with_progress: Arc<Mutex<Vec<(Job, JobStatus)>>>,
     jobs_not_queued: Vec<Job>,
     jobs_queued: VecDeque<Job>,
+    max_queued_jobs: usize,
 }
 
 impl JobHandler {
     pub fn set_jobs(&mut self, new_jobs: Vec<Job>) {
+        let cores_ids = core_affinity::get_core_ids().unwrap();
+        let num_cores_available = cores_ids.len();
+        self.max_queued_jobs = num_cores_available - 2; // 1 core free, 1 core for UI
+        log::log!(
+            log::Level::Info,
+            "Setting max queued jobs to {} ({} cores available)",
+            self.max_queued_jobs,
+            num_cores_available
+        );
+
         let jobs_with_0_progress: Vec<(Job, JobStatus)> = new_jobs
             .iter()
             .cloned()
@@ -467,6 +479,11 @@ impl JobHandler {
             .collect();
         self.jobs_with_progress = Arc::new(Mutex::new(jobs_with_0_progress));
         self.jobs_not_queued = new_jobs;
+        assert!(
+            self.jobs_queued.is_empty(),
+            "Queued jobs should be empty when setting new jobs"
+        );
+        self.jobs_queued.clear()
     }
 
     pub fn get_jobs(&self) -> impl Iterator<Item = Job> {
@@ -493,8 +510,11 @@ impl JobHandler {
     }
 
     pub fn update(&mut self) {
-        const MAX_QUEUED_JOBS: usize = 100;
-        while self.jobs_not_queued.len() > 0 && self.jobs_queued.len() <= MAX_QUEUED_JOBS {
+        let num_spawned_threads = ThreadsafeAtomicCounter::peek_count();
+
+        while self.jobs_not_queued.len() > 0
+            && num_spawned_threads + self.jobs_queued.len() < self.max_queued_jobs
+        {
             let popped = self.jobs_not_queued.pop().unwrap();
             self.jobs_queued.push_back(popped);
         }
@@ -515,7 +535,8 @@ impl JobHandler {
         for job in jobs_to_queue {
             let complete_job_mutex = self.jobs_with_progress.clone();
             let _handle = thread::spawn(move || {
-                log::trace!("Spawned thread {:?}", &job);
+                let thread_counter = ThreadsafeAtomicCounter::new();
+                log::trace!("Spawned thread #{}:\n{:?}", thread_counter.count(), &job);
 
                 let job_steps = job.job_steps();
                 let job_count = job.job_count();

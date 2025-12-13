@@ -16,6 +16,7 @@ mod image;
 mod jobs;
 mod json_file;
 mod logger;
+mod threadsafe_atomic_counter;
 mod windows;
 
 fn main() -> eframe::Result {
