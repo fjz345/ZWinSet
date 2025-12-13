@@ -5,6 +5,7 @@ use std::{
 };
 
 use crate::{
+    CLI,
     all_jobs::ALL_JOBS,
     image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler},
@@ -53,7 +54,6 @@ pub struct ZApp {
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
 impl ZApp {
-    const INTERACTIVE_TESTING: bool = false;
     // stupid work around since persistance storage does not work??
     pub fn request_init(&mut self) {
         self.state = AppState::Startup;
@@ -522,13 +522,18 @@ impl eframe::App for ZApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        let interactive_testing = CLI
+            .get()
+            .map(|c| c.interactive_mode.is_some())
+            .unwrap_or(false);
+
         match self.state {
             AppState::Startup => {
                 self.startup(ctx, frame);
                 self.state = AppState::UserSetup;
             }
             AppState::UserSetup => {
-                let response = if Self::INTERACTIVE_TESTING {
+                let response = if interactive_testing {
                     self.draw_ui_interactive_testing(ctx, frame)
                 } else {
                     self.draw_ui_usersetup(ctx, frame)
@@ -552,7 +557,7 @@ impl eframe::App for ZApp {
                 ));
             }
             AppState::AllWorkDone => {
-                if Self::INTERACTIVE_TESTING {
+                if interactive_testing {
                     self.state = AppState::UserSetup;
                     return;
                 }

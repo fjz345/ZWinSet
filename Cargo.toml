@@ -16,6 +16,8 @@ tempfile = "3.20.0"
 base64 = "0.22.1"
 image = {version = "0.24", features = ["png"]}
 core_affinity = "0.8.3"
+clap = { version = "4.5.53", features = ["derive"] }
+
 
 [dependencies.windows]
 version = "0.61.3"

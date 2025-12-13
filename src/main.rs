@@ -2,9 +2,9 @@
 #![allow(dead_code)]
 #![allow(unreachable_patterns)]
 
-use std::env;
-
+use clap::Parser;
 use eframe::egui::{self};
+use std::{env, sync::OnceLock};
 
 use crate::{app::ZApp, logger::LogCollector};
 
@@ -19,7 +19,28 @@ mod logger;
 mod threadsafe_atomic_counter;
 mod windows;
 
+#[derive(Debug, Parser)]
+#[command(name = "ZWinSet")]
+#[command(author, version, about = "App with CLI support")]
+struct Cli {
+    #[arg(long)]
+    debug: bool,
+
+    #[arg(short, long)]
+    interactive_mode: Option<String>,
+
+    #[arg(short, long)]
+    config: Option<String>,
+
+    #[arg(last = true)]
+    extra: Vec<String>,
+}
+static CLI: OnceLock<Cli> = OnceLock::new();
+
 fn main() -> eframe::Result {
+    let cli = Cli::parse();
+    CLI.set(cli).expect("CLI already set");
+
     unsafe { env::set_var("RUST_LOG", "debug") }; // or "info" or "debug"
     let log_buffer = LogCollector::init().expect("Failed to init logger");
 

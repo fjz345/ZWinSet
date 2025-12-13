@@ -22,7 +22,6 @@ Note that not all jobs are correctly working, check the status of each job in th
 
 ## Todo
 * Automatic usage of "-AllUsers" as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,"
-* Interactive testing mode launch parameter
 * Dependencies (InstallChrome -> Set Chrome default)
 * Better finish screen
 * Progress bar somehow more accurate?
