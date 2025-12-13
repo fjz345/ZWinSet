@@ -507,8 +507,8 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         post_fn: None,tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
-        name: "Toolbar Search",
-        explination: "Hides the search bra at the toolbar",
+        name: "Hide Toolbar Search",
+        explination: "Hides the search bar at the toolbar",
         category: JobCategory::Windows,
         reg_keys: &[RegKey {
             path: r#"HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"#,
@@ -552,7 +552,7 @@ public class NativeMethods {
 [NativeMethods]::SystemParametersInfo($SPI_SETMOUSE, 0, $mouseParams, $SPIF_UPDATEINIFILE -bor $SPIF_SENDCHANGE)
             "#,
         )],
-        name: "Mouse Acceleration",tested: JobReadyState::VERIFIED,
+        name: "Disable Mouse Acceleration",tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Disable diagnostic data collection",
@@ -687,7 +687,7 @@ public class NativeMethods {
         StaticPowerShellCommand::new(
             r#"Set-Service -Name "WSearch" -StartupType Disabled"#,
         )],
-        name: "Disable Search",tested: JobReadyState::NOTTESTED,
+        name: "Disable Windows Explorer Search",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Microdick Activation Script",
