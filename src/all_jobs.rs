@@ -162,53 +162,84 @@ pub static ALL_JOBS: &[Job] = &[
         name: "Mullvad",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Helix",
-        category: JobCategory::Application,
-        list_of_commands: &[
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix""#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Invoke-WebRequest -Uri "https://github.com/helix-editor/helix/releases/latest/download/helix-windows.zip" -OutFile $helixZip"#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";if (-Not (Test-Path $installDir)) {
-                New-Item -ItemType Directory -Path $installDir | Out-Null
-            }"#,
-            ),
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory($helixZip, $installDir, $true)"#,
-            ),
-            StaticPowerShellCommand::new(r#"Remove-Item $helixZip"#),
-            StaticPowerShellCommand::new(
-                r#"$helixZip = "$env:TEMP\helix.zip";$installDir = "$env:LOCALAPPDATA\Programs\helix";$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
- if (-Not $userPath.Split(';') -contains $installDir) {
-     [Environment]::SetEnvironmentVariable("Path", "$userPath;$installDir", "User")
- }"#,
-            ),
-        ],
-        name: "Helix",tested: JobReadyState::NOTTESTED,
+    explination: "Install Helix",
+    category: JobCategory::Application,
+    list_of_commands: &[
+        // Download ZIP
+        StaticPowerShellCommand::new(
+            r#"$helixZip = "$env:TEMP\helix.zip";
+Invoke-WebRequest -Uri "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-windows.zip" -OutFile $helixZip"#,
+        ),
+
+        // Extract directly to C:\
+        StaticPowerShellCommand::new(
+        r#"$helixZip = "$env:TEMP\helix.zip";
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+Write-Host "Extracting Helix to C:\"
+[System.IO.Compression.ZipFile]::ExtractToDirectory($helixZip, "C:\")
+
+Write-Host "Listing C:\ after extraction:"
+Get-ChildItem C:\ | Where-Object { $_.Name -like 'helix-*' } | ForEach-Object {
+    Write-Host "FOUND:" $_.FullName
+}
+
+if (-not (Get-ChildItem C:\ | Where-Object { $_.Name -like 'helix-*windows*' })) {
+    throw "Helix extraction failed: folder not found in C:\"
+}"#,
+        ).req_admin(),
+
+        // Cleanup ZIP
+        StaticPowerShellCommand::new(
+            r#"$helixZip = "$env:TEMP\helix.zip"; Remove-Item $helixZip -Force"#,
+        ).req_admin(),
+
+        // Add extracted folder to Machine PATH
+        StaticPowerShellCommand::new(
+            r#"$installRoot = "C:\";
+        $binDir = Get-ChildItem $installRoot -Directory |
+            Where-Object { $_.Name -like 'helix-*windows*' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
+        if (-not $binDir) {
+            throw "Helix folder not found in C:\"
+        }
+
+        Write-Host "Adding to PATH:" $binDir.FullName
+
+        $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+        if (-not ($machinePath.Split(';') -contains $binDir.FullName)) {
+            [Environment]::SetEnvironmentVariable(
+                "Path",
+                "$machinePath;$($binDir.FullName)",
+                "Machine"
+            )
+        }"#,
+        ).req_admin(),
+            ],
+            name: "Helix",
+            tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
-        explination: "Install Battlenet",
+        explination: "Install Focusrite Control 2",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe""#),
             StaticPowerShellCommand::new(
-                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Invoke-WebRequest -Uri "https://www.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe" -OutFile $bnetInstaller"#,
+                r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe""#,
             ),
             StaticPowerShellCommand::new(
-                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Start-Process -FilePath $bnetInstaller -ArgumentList "/SILENT" -Wait"#,
+                r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Invoke-WebRequest -Uri "https://releases.focusrite.com/com.focusrite.focusrite-control/latest/Focusrite-Control-2.exe" -OutFile $focusriteInstaller"#,
             ),
             StaticPowerShellCommand::new(
-                r#"$bnetInstaller = "$env:TEMP\BattleNet-Setup.exe";Remove-Item $bnetInstaller"#,
+                r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Start-Process -FilePath $focusriteInstaller -ArgumentList "/S" -Wait"#,
+            ).req_admin(),
+            StaticPowerShellCommand::new(
+                r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Remove-Item $focusriteInstaller"#,
             ),
         ],
-        name: "Battlenet",tested: JobReadyState::VERIFIED,
+        name: "Focusrite Control 2",
+        tested: JobReadyState::VERIFIED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install PowerToys",

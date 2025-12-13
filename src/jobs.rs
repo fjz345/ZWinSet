@@ -29,12 +29,18 @@ impl JobStep {
     }
     pub fn execute(&mut self) -> Result<()> {
         let powershell_result = if !self.command.is_empty() {
+            log::debug!(
+                "Executing PowerShell command (admin={}):\n{}",
+                self.require_admin(),
+                self.command
+            );
             if self.require_admin() {
                 Some(execute_powershell_as_admin(&[self.command.clone()]))
             } else {
                 Some(execute_powershell_command(&[self.command.clone()]))
             }
         } else {
+            log::debug!("Failed to find PowerShell command");
             None
         };
 

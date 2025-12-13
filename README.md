@@ -29,3 +29,4 @@ Note that not all jobs are correctly working, check the status of each job in th
 * Progress bar somehow more accurate?
 * Get the windows topbar height and subtract minscreensize with it
 * Might be great to implement some context page for certain jobs where user can specify arguments per job.
+* Verify more jobs
