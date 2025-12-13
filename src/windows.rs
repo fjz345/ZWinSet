@@ -1,3 +1,6 @@
+use std::env;
+use std::path::PathBuf;
+
 use windows::Win32::UI::Accessibility::STICKYKEYS_FLAGS;
 use windows::Win32::UI::WindowsAndMessaging::{SPI_SETSTICKYKEYS, SystemParametersInfoW};
 
@@ -52,20 +55,6 @@ pub fn restart_explorer() {
     }
 }
 
-pub fn does_program_exist(program_name: &str) -> bool {
-    let output = execute_powershell_command(&[&format!(
-        r#"Get-Command {} -ErrorAction SilentlyContinue"#,
-        program_name
-    )]);
-
-    match output {
-        Ok(output) if output.status.success() => {
-            !String::from_utf8_lossy(&output.stdout).trim().is_empty()
-        }
-        _ => false,
-    }
-}
-
 pub fn does_program_registry_exist(program_name: &str) -> bool {
     let paths = [
         r#"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
@@ -91,8 +80,9 @@ pub fn does_program_registry_exist(program_name: &str) -> bool {
     false
 }
 
-pub fn does_program_path_exist(program_path: &str) -> bool {
-    let cmd = format!(r#"Test-Path -Path "{}""#, program_path);
+/// Checks if the given path exists on the current system using PowerShell.
+pub fn does_path_exist(path: &str) -> bool {
+    let cmd = format!(r#"Test-Path -Path "{}""#, path);
 
     match execute_powershell_command(&[&cmd]) {
         Ok(output) if output.status.success() => String::from_utf8_lossy(&output.stdout)
@@ -100,4 +90,48 @@ pub fn does_program_path_exist(program_path: &str) -> bool {
             .eq_ignore_ascii_case("True"),
         _ => false,
     }
+}
+
+/// Checks if a given program path exists on any available drive (C:\, D:\, etc.).
+pub fn does_program_path_exist_on_any_drive(program_path: &str) -> bool {
+    // List of common Windows drive letters
+    let drives = [
+        "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z",
+    ];
+
+    for drive in drives.iter() {
+        let full_path = format!(r"{}:\{}", drive, program_path.trim_start_matches('\\'));
+        if does_path_exist(&full_path) {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn does_program_exist(program_name: &str) -> bool {
+    if does_program_registry_exist(program_name) {
+        return true;
+    }
+    let common_dirs = [
+        env::var("ProgramFiles").ok(),
+        env::var("ProgramFiles(x86)").ok(),
+        env::var("LocalAppData").ok(),
+        env::var("AppData").ok(),
+    ];
+
+    for dir in common_dirs.iter().flatten() {
+        let path = PathBuf::from(dir).join(program_name);
+        if does_program_path_exist_on_any_drive(path.to_str().unwrap_or_default()) {
+            return true;
+        }
+    }
+
+    // Optionally, you can also check "C:\ProgramData"
+    if does_program_path_exist_on_any_drive(&format!(r"ProgramData\{}", program_name)) {
+        return true;
+    }
+
+    false
 }
