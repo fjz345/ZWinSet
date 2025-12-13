@@ -2,40 +2,15 @@
 #![allow(dead_code)]
 #![allow(unreachable_patterns)]
 
+use std::env;
+
+use ZWinSet::{
+    app::ZApp,
+    cli::{CLI, Cli},
+    logger::LogCollector,
+};
 use clap::Parser;
 use eframe::egui::{self};
-use std::{env, sync::OnceLock};
-
-use crate::{app::ZApp, logger::LogCollector};
-
-mod all_jobs;
-mod app;
-mod commands;
-mod error;
-mod image;
-mod jobs;
-mod json_file;
-mod logger;
-mod threadsafe_atomic_counter;
-mod windows;
-
-#[derive(Debug, Parser)]
-#[command(name = "ZWinSet")]
-#[command(author, version, about = "App with CLI support")]
-struct Cli {
-    #[arg(long)]
-    debug: bool,
-
-    #[arg(short, long)]
-    interactive_mode: Option<String>,
-
-    #[arg(short, long)]
-    config: Option<String>,
-
-    #[arg(last = true)]
-    extra: Vec<String>,
-}
-static CLI: OnceLock<Cli> = OnceLock::new();
 
 fn main() -> eframe::Result {
     let cli = Cli::parse();

@@ -51,3 +51,53 @@ pub fn restart_explorer() {
         Err(e) => log::error!("{e}"),
     }
 }
+
+pub fn does_program_exist(program_name: &str) -> bool {
+    let output = execute_powershell_command(&[&format!(
+        r#"Get-Command {} -ErrorAction SilentlyContinue"#,
+        program_name
+    )]);
+
+    match output {
+        Ok(output) if output.status.success() => {
+            !String::from_utf8_lossy(&output.stdout).trim().is_empty()
+        }
+        _ => false,
+    }
+}
+
+pub fn does_program_registry_exist(program_name: &str) -> bool {
+    let paths = [
+        r#"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
+        r#"HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
+        r#"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
+    ];
+
+    for path in paths {
+        let cmd = format!(
+            r#"Get-ItemProperty -Path "{}" | Where-Object {{ $_.DisplayName -like '*{}*' }} | Select-Object -First 1"#,
+            path, program_name
+        );
+
+        if let Ok(output) = execute_powershell_command(&[&cmd]) {
+            if output.status.success() {
+                if !String::from_utf8_lossy(&output.stdout).trim().is_empty() {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
+}
+
+pub fn does_program_path_exist(program_path: &str) -> bool {
+    let cmd = format!(r#"Test-Path -Path "{}""#, program_path);
+
+    match execute_powershell_command(&[&cmd]) {
+        Ok(output) if output.status.success() => String::from_utf8_lossy(&output.stdout)
+            .trim()
+            .eq_ignore_ascii_case("True"),
+        _ => false,
+    }
+}

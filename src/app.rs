@@ -5,8 +5,8 @@ use std::{
 };
 
 use crate::{
-    CLI,
     all_jobs::ALL_JOBS,
+    cli::CLI,
     image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler},
     json_file::{JsonSelectedFiles, read_json_selected},
@@ -120,8 +120,11 @@ impl ZApp {
 
         let visuals: egui::Visuals = egui::Visuals::dark();
         ctx.set_visuals(visuals);
-        log::info!("pixels_per_point{:?}", ctx.pixels_per_point());
-        log::info!("native_pixels_per_point{:?}", ctx.native_pixels_per_point());
+        log::info!("pixels_per_point: {:?}", ctx.pixels_per_point());
+        log::info!(
+            "native_pixels_per_point: {:?}",
+            ctx.native_pixels_per_point()
+        );
         ctx.set_pixels_per_point(self.scale_factor); // Maybe mult native_pixels_per_point?
         // ctx.set_debug_on_hover(true);
 
