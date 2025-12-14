@@ -28,6 +28,7 @@ Note that not all jobs are correctly working, check the status of each job in th
 * Interactive Mode
 * User installed identification
 * Simple job setup in all_jobs.rs
+* "Presets" via selected_jobs.json
 
 ## Todo
 * Automatic usage of "-AllUsers" as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,"
