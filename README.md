@@ -20,11 +20,18 @@ Follow instructions on screen, steps include:
 
 Note that not all jobs are correctly working, check the status of each job in the README.md
 
+# Features
+* User friendly GUI
+* Multithreading
+* Interactive Mode
+* User installed identification
+* Simple job setup in all_jobs.rs
+
 ## Todo
 * Automatic usage of "-AllUsers" as launch parameter "r#"Get-AppxPackage -AllUsers -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,"
+* Might be great to implement some context page for certain jobs where user can specify arguments per job.
 * Dependencies (InstallChrome -> Set Chrome default)
+* Get the windows topbar height and subtract minscreensize with it
+* Verify all jobs
 * Better finish screen
 * Progress bar somehow more accurate?
-* Get the windows topbar height and subtract minscreensize with it
-* Might be great to implement some context page for certain jobs where user can specify arguments per job.
-* Verify more jobs
