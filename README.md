@@ -1,6 +1,8 @@
 # ZWinSet
-![alt text](showcase/job_select.png)
-![alt text](showcase/executing_jobs.png)
+<div style="text-align: center;">
+  <img src="showcase/job_select.png" alt="Job Select" width="45%" />
+  <img src="showcase/executing_jobs.png" alt="Executing Jobs" width="45%" />
+</div>
 
 # Disclaimer
 I take no responsibility what so ever over you using this tool. Use at own risk.
