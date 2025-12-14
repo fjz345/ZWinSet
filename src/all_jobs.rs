@@ -161,7 +161,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Remove-Item $logitechInstaller"#,
             ),
         ],
-        name: "Logitech Hub",tested: JobReadyState::NOTTESTED,
+        name: "Logitech G Hub",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Visual Code",
@@ -178,7 +178,7 @@ pub static ALL_JOBS: &[Job] = &[
                 r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Remove-Item $vsCodeInstaller"#,
             ),
         ],
-        name: "Visual Code",tested: JobReadyState::NOTTESTED,
+        name: "Visual Studio Code",tested: JobReadyState::NOTTESTED,
     }),
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Install Mullvad VPN",
