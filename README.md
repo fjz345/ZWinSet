@@ -1,7 +1,7 @@
 # ZWinSet
-<div style="text-align: center;">
-  <img src="showcase/job_select.png" alt="Job Select" width="45%" />
-  <img src="showcase/executing_jobs.png" alt="Executing Jobs" width="45%" />
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+  <img src="showcase/job_select.png" alt="Job Select" style="max-width: 45%; height: auto;" />
+  <img src="showcase/executing_jobs.png" alt="Executing Jobs" style="max-width: 45%; height: auto;" />
 </div>
 
 # Disclaimer
