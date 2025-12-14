@@ -13,7 +13,7 @@ pub struct Cli {
     pub interactive_mode: Option<bool>,
 
     #[arg(short, long, default_value_t = true)]
-    pub program_check: bool,
+    pub skip_program_check: bool,
 
     #[arg(short, long)]
     config: Option<String>,

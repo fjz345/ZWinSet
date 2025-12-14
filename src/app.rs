@@ -141,7 +141,7 @@ impl ZApp {
         self.init_read_json_selected();
 
         let cli = CLI.get();
-        if cli.unwrap().program_check {
+        if !cli.unwrap().skip_program_check {
             self.init_user_programs_cache();
         }
     }
@@ -279,6 +279,9 @@ impl ZApp {
                 ui.vertical(|ui| {
                     // Explination
                     ui.label("Select desiered jobs, then press next.");
+                    ui.label(
+                        RichText::new("Green text is already installed").color(Color32::GREEN),
+                    );
                     ui.label(RichText::new("White text is verified working").color(Color32::WHITE));
                     ui.label(
                         RichText::new("Yellow text is not tested (probably works)")
