@@ -6,11 +6,14 @@ use clap::Parser;
 #[command(name = "ZWinSet")]
 #[command(author, version, about = "App with CLI support")]
 pub struct Cli {
-    #[arg(long)]
+    #[arg(long, default_value_t = false)]
     debug: bool,
 
     #[arg(short, long)]
-    pub interactive_mode: Option<String>,
+    pub interactive_mode: Option<bool>,
+
+    #[arg(short, long, default_value_t = true)]
+    pub program_check: bool,
 
     #[arg(short, long)]
     config: Option<String>,

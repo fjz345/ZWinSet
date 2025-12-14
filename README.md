@@ -28,4 +28,3 @@ Note that not all jobs are correctly working, check the status of each job in th
 * Get the windows topbar height and subtract minscreensize with it
 * Might be great to implement some context page for certain jobs where user can specify arguments per job.
 * Verify more jobs
-* Way to query what programs are already installed?

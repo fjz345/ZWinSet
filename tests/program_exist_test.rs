@@ -1,9 +1,13 @@
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::*; // imports items from parent module
-    use ZWinSet::windows::{
-        does_path_exist, does_program_exist, does_program_path_exist_on_any_drive,
-        does_program_registry_exist,
+    use ZWinSet::{
+        utils::path_exists,
+        windows::{
+            does_program_exist, does_program_path_exist_on_any_drive, does_program_registry_exist,
+        },
     };
 
     /* Tests that can not be included in regular test runs */
@@ -17,10 +21,10 @@ mod tests {
     #[test]
     #[ignore]
     fn test_does_path_exist() {
-        assert!(does_path_exist("C:\\Program Files (x86)\\Steam"));
-        assert!(does_path_exist(
+        assert!(path_exists(Path::new("C:\\Program Files (x86)\\Steam")));
+        assert!(path_exists(Path::new(
             "C:\\Program Files\\Google\\Chrome\\Application"
-        ));
+        )));
     }
     #[test]
     #[ignore]

@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs::File,
     io::BufWriter,
     sync::{Arc, Mutex},
@@ -6,10 +7,11 @@ use std::{
 
 use crate::{
     all_jobs::ALL_JOBS,
-    cli::CLI,
+    cli::{self, CLI},
     image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler},
     json_file::{JsonSelectedFiles, read_json_selected},
+    windows::does_program_exist,
 };
 
 use eframe::{
@@ -50,10 +52,36 @@ pub struct ZApp {
     admin_icon: Option<TextureHandle>,
     #[serde(skip)]
     empty_icon: Option<TextureHandle>,
+    #[serde(skip)]
+    user_programs_cache: Option<HashMap<String, bool>>,
 }
 
 const HARDCODED_MONITOR_SIZE: Vec2 = Vec2::new(2560.0, 1440.0);
 impl ZApp {
+    fn init_user_programs_cache(&mut self) {
+        let mut cache: HashMap<String, bool> = HashMap::new();
+        for job in ALL_JOBS.iter() {
+            if job.category() == JobCategory::Application {
+                let exists = does_program_exist(job.name());
+                cache.insert(job.name().to_string(), exists);
+            }
+        }
+        self.user_programs_cache = Some(cache);
+    }
+
+    fn user_program_exists(&self, program_name: &str) -> bool {
+        if let Some(cache) = &self.user_programs_cache.as_ref() {
+            let found = cache.iter().find(|&a| a.0 == program_name);
+
+            if let Some((_key, value)) = found {
+                return *value;
+            } else {
+                return false;
+            }
+        }
+        false
+    }
+
     // stupid work around since persistance storage does not work??
     pub fn request_init(&mut self) {
         self.state = AppState::Startup;
@@ -111,6 +139,11 @@ impl ZApp {
     fn init(&mut self) {
         self.job_during_selection = ALL_JOBS.iter().cloned().map(|job| (job, false)).collect();
         self.init_read_json_selected();
+
+        let cli = CLI.get();
+        if cli.unwrap().program_check {
+            self.init_user_programs_cache();
+        }
     }
 
     fn startup(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -200,6 +233,7 @@ impl ZApp {
         admin_icon: TextureHandle,
         empty_icon: TextureHandle,
         job_during_selection: &mut Vec<(Job, bool)>,
+        text_color_override: Option<Color32>,
     ) -> (Response, bool) {
         let job_name = format!("{}", job.name());
         let icon_id = if job.require_admin() {
@@ -219,11 +253,15 @@ impl ZApp {
                 .map(|f| &mut f.1)
                 .expect("failure");
 
-            let job_text_color = match job.ready_state() {
-                crate::jobs::JobReadyState::NOTTESTED => Color32::YELLOW,
-                crate::jobs::JobReadyState::VERIFIED => Color32::WHITE,
-                crate::jobs::JobReadyState::NOTWORKING
-                | crate::jobs::JobReadyState::NOTIMPLEMENTED => Color32::RED,
+            let job_text_color = if let Some(override_color) = text_color_override {
+                override_color
+            } else {
+                match job.ready_state() {
+                    crate::jobs::JobReadyState::NOTTESTED => Color32::YELLOW,
+                    crate::jobs::JobReadyState::VERIFIED => Color32::WHITE,
+                    crate::jobs::JobReadyState::NOTWORKING
+                    | crate::jobs::JobReadyState::NOTIMPLEMENTED => Color32::RED,
+                }
             };
             let job_text = RichText::new(&job_name).color(job_text_color);
             let checkbox_response = ui.checkbox(&mut checkbox_value, job_text);
@@ -262,9 +300,16 @@ impl ZApp {
                                         ScrollArea::vertical()
                                             .id_salt(format!("scroll_area_{:?}", job_category)) // corrected from `id_salt` to `id_source`
                                             .min_scrolled_height(400.0)
-                                            .show(ui, |ui| {
+                                            .show(ui, |ui: &mut egui::Ui| {
                                                 ui.vertical(|ui| {
                                                     for job in jobs_in_category {
+                                                        let user_mark_ok =
+                                                            self.user_program_exists(job.name());
+                                                        let text_color_override = if user_mark_ok {
+                                                            Some(Color32::GREEN)
+                                                        } else {
+                                                            None
+                                                        };
                                                         let (checkbox_response, checkbox_value) =
                                                             Self::draw_checkbox_job(
                                                                 ui,
@@ -272,6 +317,7 @@ impl ZApp {
                                                                 self.admin_icon.clone().unwrap(),
                                                                 self.empty_icon.clone().unwrap(),
                                                                 &mut self.job_during_selection,
+                                                                text_color_override,
                                                             );
                                                         job_check_responses.push((
                                                             checkbox_response,
@@ -336,6 +382,7 @@ impl ZApp {
                                                 self.admin_icon.clone().unwrap(),
                                                 self.empty_icon.clone().unwrap(),
                                                 &mut self.job_during_selection,
+                                                None,
                                             );
                                         job_check_responses.push((
                                             checkbox_response,

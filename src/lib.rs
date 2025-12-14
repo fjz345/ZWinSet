@@ -8,4 +8,5 @@ pub mod jobs;
 pub mod json_file;
 pub mod logger;
 pub mod threadsafe_atomic_counter;
+pub mod utils;
 pub mod windows;
