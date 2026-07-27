@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 use std::path::PathBuf;
 use std::{env, fs};
 
@@ -56,7 +57,7 @@ pub fn restart_explorer() {
     }
 }
 
-pub fn does_program_registry_exist(program_name: &str) -> bool {
+pub fn does_windows_program_registry_exist(program_name: &str) -> bool {
     let paths = [
         r#"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
         r#"HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"#,
@@ -92,7 +93,7 @@ fn get_existing_drives() -> Vec<String> {
     drives
 }
 
-pub fn does_program_path_exist_on_any_drive(program_path: &str) -> bool {
+pub fn does_windows_program_path_exist_on_any_drive(program_path: &str) -> bool {
     for drive in get_existing_drives() {
         let full_path = format!("{}{}", drive, program_path.trim_start_matches('\\'));
         if path_exists(&PathBuf::from(&full_path)) {
@@ -102,8 +103,8 @@ pub fn does_program_path_exist_on_any_drive(program_path: &str) -> bool {
     false
 }
 
-pub fn does_program_exist(program_name: &str) -> bool {
-    if does_program_registry_exist(program_name) {
+pub fn does_windows_program_exist(program_name: &str) -> bool {
+    if does_windows_program_registry_exist(program_name) {
         return true;
     }
     let common_dirs = [
@@ -121,7 +122,7 @@ pub fn does_program_exist(program_name: &str) -> bool {
     }
 
     // Optionally, you can also check "C:\ProgramData"
-    if does_program_path_exist_on_any_drive(&format!(r"ProgramData\{}", program_name)) {
+    if does_windows_program_path_exist_on_any_drive(&format!(r"ProgramData\{}", program_name)) {
         return true;
     }
 

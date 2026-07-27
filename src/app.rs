@@ -11,7 +11,7 @@ use crate::{
     image::{load_admin_icon, load_empty_icon},
     jobs::{Job, JobCategory, JobHandler},
     json_file::{JsonSelectedFiles, read_json_selected},
-    windows::does_program_exist,
+    os::does_program_exist,
 };
 
 use eframe::{

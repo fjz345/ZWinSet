@@ -3,8 +3,11 @@ use crate::{
         Job, JobCategory, JobReadyState, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
         StaticPowerShellCommand,
     },
-    windows::{clear_recent_files, disable_sticky_keys, restart_explorer},
 };
+
+
+#[cfg(target_os = "windows")]
+use crate::windows::{clear_recent_files, disable_sticky_keys, restart_explorer};
 
 // Formatting does not work
 #[rustfmt::skip] 
@@ -457,6 +460,7 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         }],
         post_fn: None,tested: JobReadyState::NOTTESTED,
     }),
+    #[cfg(target_os="windows")]
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
         name: "Sticky Keys (shift)",
         explination: "Disable Sticky Keys (Spam Shift)",
@@ -494,8 +498,9 @@ Set-SleepTimeout -timeoutSeconds 0"#,
             },
         ],
         require_admin: false,
-        post_fn: Some(disable_sticky_keys),tested: JobReadyState::VERIFIED,
+        post_fn: Some(||{disable_sticky_keys();}),tested: JobReadyState::VERIFIED,
     }),
+     #[cfg(target_os="windows")]
     Job::PowerShellRegKey(PowerShellRegKeyCtx {
     name: "Disable Recent Start Menu Recommended",
     explination: "Disables Recent Items and Frequent Apps in Windows Start Menu",

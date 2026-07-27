@@ -7,6 +7,8 @@ pub mod image;
 pub mod jobs;
 pub mod json_file;
 pub mod logger;
+pub mod os;
 pub mod threadsafe_atomic_counter;
 pub mod utils;
+#[cfg(target_os = "windows")]
 pub mod windows;

@@ -1,3 +1,4 @@
+#[cfg(target_os = "windows")]
 #[cfg(test)]
 mod tests {
     use std::path::Path;
@@ -6,17 +7,18 @@ mod tests {
     use ZWinSet::{
         utils::path_exists,
         windows::{
-            does_program_exist, does_program_path_exist_on_any_drive, does_program_registry_exist,
+            does_windows_program_exist, does_windows_program_path_exist_on_any_drive,
+            does_windows_program_registry_exist,
         },
     };
 
     /* Tests that can not be included in regular test runs */
     #[test]
     #[ignore]
-    fn test_does_program_registry_exist() {
-        assert!(does_program_registry_exist("Steam"));
-        assert!(does_program_registry_exist("Chrome"));
-        assert!(does_program_registry_exist("Spotify"));
+    fn test_does_windows_program_registry_exist() {
+        assert!(does_windows_program_registry_exist("Steam"));
+        assert!(does_windows_program_registry_exist("Chrome"));
+        assert!(does_windows_program_registry_exist("Spotify"));
     }
     #[test]
     #[ignore]
@@ -28,19 +30,19 @@ mod tests {
     }
     #[test]
     #[ignore]
-    fn test_does_program_path_exist_on_any_drive() {
-        assert!(does_program_path_exist_on_any_drive(
+    fn test_does_windows_program_path_exist_on_any_drive() {
+        assert!(does_windows_program_path_exist_on_any_drive(
             "Program Files (x86)\\Steam"
         ));
-        assert!(does_program_path_exist_on_any_drive(
+        assert!(does_windows_program_path_exist_on_any_drive(
             "Program Files\\Google\\Chrome\\Application"
         ));
     }
     #[test]
     #[ignore]
-    fn test_does_program_exist() {
-        assert!(does_program_exist("Steam"));
-        assert!(does_program_exist("Spotify"));
-        assert!(does_program_exist("Chrome"));
+    fn test_does_windows_program_exist() {
+        assert!(does_windows_program_exist("Steam"));
+        assert!(does_windows_program_exist("Spotify"));
+        assert!(does_windows_program_exist("Chrome"));
     }
 }
