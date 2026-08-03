@@ -1,4 +1,3 @@
-pub mod all_jobs;
 pub mod app;
 pub mod cli;
 pub mod commands;

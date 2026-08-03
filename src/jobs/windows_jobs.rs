@@ -11,7 +11,7 @@ use crate::windows::{clear_recent_files, disable_sticky_keys, restart_explorer};
 
 // Formatting does not work
 #[rustfmt::skip] 
-pub static ALL_JOBS: &[Job] = &[
+pub static WINDOWS_JOBS: &[Job] = &[
     Job::PowerShellCommand(PowerShellCtx {
         explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,

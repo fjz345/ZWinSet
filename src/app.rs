@@ -2,18 +2,18 @@ use std::{
     collections::HashMap,
     fs::File,
     io::BufWriter,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 
 use crate::{
-    all_jobs::ALL_JOBS,
     cli::{self, CLI},
     image::{load_admin_icon, load_empty_icon},
-    jobs::{Job, JobCategory, JobHandler},
+    jobs::job::{Job, JobCategory, JobHandler},
     json_file::{JsonSelectedFiles, read_json_selected},
     os::does_program_exist,
 };
 
+use crate::jobs::platform_jobs::get_all_jobs;
 use eframe::{
     CreationContext,
     egui::{
@@ -23,6 +23,8 @@ use eframe::{
 };
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
+
+pub static ALL_JOBS: LazyLock<Vec<Job>> = LazyLock::new(|| get_all_jobs().collect());
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 enum AppState {
@@ -257,10 +259,10 @@ impl ZApp {
                 override_color
             } else {
                 match job.ready_state() {
-                    crate::jobs::JobReadyState::NOTTESTED => Color32::YELLOW,
-                    crate::jobs::JobReadyState::VERIFIED => Color32::WHITE,
-                    crate::jobs::JobReadyState::NOTWORKING
-                    | crate::jobs::JobReadyState::NOTIMPLEMENTED => Color32::RED,
+                    crate::jobs::job::JobReadyState::NOTTESTED => Color32::YELLOW,
+                    crate::jobs::job::JobReadyState::VERIFIED => Color32::WHITE,
+                    crate::jobs::job::JobReadyState::NOTWORKING
+                    | crate::jobs::job::JobReadyState::NOTIMPLEMENTED => Color32::RED,
                 }
             };
             let job_text = RichText::new(&job_name).color(job_text_color);
@@ -449,10 +451,10 @@ impl ZApp {
                                             size: [12.0, 15.0].into(),
                                         }));
                                         let progress_bar = ProgressBar::new(match job_status {
-                                            crate::jobs::JobStatus::NotStarted => 0.0,
-                                            crate::jobs::JobStatus::InProgress(p) => p,
-                                            crate::jobs::JobStatus::Failed(p) => p,
-                                            crate::jobs::JobStatus::Finished => 1.0,
+                                            crate::jobs::job::JobStatus::NotStarted => 0.0,
+                                            crate::jobs::job::JobStatus::InProgress(p) => p,
+                                            crate::jobs::job::JobStatus::Failed(p) => p,
+                                            crate::jobs::job::JobStatus::Finished => 1.0,
                                         })
                                         .show_percentage()
                                         .desired_width(100.0);
@@ -498,10 +500,10 @@ impl ZApp {
                                             size: [12.0, 15.0].into(),
                                         }));
                                         let progress_bar = ProgressBar::new(match job_status {
-                                            crate::jobs::JobStatus::NotStarted => 0.0,
-                                            crate::jobs::JobStatus::InProgress(p) => p,
-                                            crate::jobs::JobStatus::Failed(p) => p,
-                                            crate::jobs::JobStatus::Finished => 1.0,
+                                            crate::jobs::job::JobStatus::NotStarted => 0.0,
+                                            crate::jobs::job::JobStatus::InProgress(p) => p,
+                                            crate::jobs::job::JobStatus::Failed(p) => p,
+                                            crate::jobs::job::JobStatus::Finished => 1.0,
                                         })
                                         .show_percentage()
                                         .desired_width(100.0);
