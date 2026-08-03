@@ -1,7 +1,7 @@
 use crate::{
     jobs::{
-        Job, JobCategory, JobReadyState, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
-        StaticPowerShellCommand,
+        Job, JobCategory, JobReadyState, TerminalCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
+        StaticTerminalCommand,
     },
 };
 
@@ -12,206 +12,206 @@ use crate::windows::{clear_recent_files, disable_sticky_keys, restart_explorer};
 // Formatting does not work
 #[rustfmt::skip] 
 pub static WINDOWS_JOBS: &[Job] = &[
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,
         list_of_commands: &[
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
         ],
         name: "Test",
         tested: JobReadyState::NOTTESTED,
     }),
-        Job::PowerShellCommand(PowerShellCtx {
+        Job::PowerShellCommand(TerminalCtx {
         explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,
         list_of_commands: &[
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
         ],
         name: "Test2",
         tested: JobReadyState::NOTTESTED,
     }),
-        Job::PowerShellCommand(PowerShellCtx {
+        Job::PowerShellCommand(TerminalCtx {
         explination: "Dev Test, 2 sec duration",
         category: JobCategory::Etc,
         list_of_commands: &[
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
-            StaticPowerShellCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
+            StaticTerminalCommand::new("Start-Sleep -Milliseconds 200"),
         ],
         name: "Test3",
         tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Google Chrome",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe""#),
+            StaticTerminalCommand::new(
                 r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe";Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chromeInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -NoNewWindow -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$chromeInstaller = "$env:TEMP\chrome_installer.exe"Remove-Item $chromeInstaller"#,
             ),
         ],
         name: "Chrome",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Steam",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$steamInstaller = "$env:TEMP\steam_installer.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$steamInstaller = "$env:TEMP\steam_installer.exe""#),
+            StaticTerminalCommand::new(
                 r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Invoke-WebRequest -Uri "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe" -OutFile $steamInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Start-Process -FilePath $steamInstaller -ArgumentList "/S" -NoNewWindow -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$steamInstaller = "$env:TEMP\steam_installer.exe";Remove-Item $steamInstaller"#,
             ),
         ],
         name: "Steam",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Discord",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe""#),
+            StaticTerminalCommand::new(
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Invoke-WebRequest -Uri "https://discord.com/api/download?platform=win" -OutFile $discordInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Start-Process -FilePath $discordInstaller -ArgumentList "/S" -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$discordInstaller = "$env:TEMP\DiscordSetup.exe";Remove-Item $discordInstaller"#,
             ),
         ],
         name: "Discord",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Nvidia App (Drivers)",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"irm https://github.com/emilwojcik93/Install-NvidiaApp/releases/latest/download/Install-NvidiaApp.ps1 | iex"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"Install-NvidiaApp.ps1 -Edition Public -SilentInstall -SkipCheck"#,
             ),
         ],
         name: "Nvidia App",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Nvidia Broadcast",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe""#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Invoke-WebRequest -Uri "https://developer.nvidia.com/compute/broadcast-sdk/redist/nvidia_broadcast_app_latest.exe" -OutFile $broadcastInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Start-Process -FilePath $broadcastInstaller -ArgumentList "/silent" -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$broadcastInstaller = "$env:TEMP\NvidiaBroadcastInstaller.exe";Remove-Item $broadcastInstaller"#,
             ),
         ],
         name: "Nvidia Broadcast",  tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Logitech Hub",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe""#),
+            StaticTerminalCommand::new(
                 r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Invoke-WebRequest -Uri "https://downloads.logitech.com/pub/gaming/lghub_installer.exe" -OutFile $logitechInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Start-Process -FilePath $logitechInstaller -ArgumentList "--silent" -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$logitechInstaller = "$env:TEMP\lghub_installer.exe";Remove-Item $logitechInstaller"#,
             ),
         ],
         name: "Logitech G Hub",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Visual Code",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe""#),
+            StaticTerminalCommand::new(
                 r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64-user/stable" -OutFile $vsCodeInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Start-Process -FilePath $vsCodeInstaller -ArgumentList "/silent", "/mergetasks=!runcode" -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$vsCodeInstaller = "$env:TEMP\VSCodeUserSetup.exe";Remove-Item $vsCodeInstaller"#,
             ),
         ],
         name: "Visual Studio Code",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Mullvad VPN",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe""#),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe""#),
+            StaticTerminalCommand::new(
                 r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Invoke-WebRequest -Uri "https://mullvad.net/download/app/win/latest/" -OutFile $mullvadInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Start-Process -FilePath $mullvadInstaller -ArgumentList "/S" -Wait"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$mullvadInstaller = "$env:TEMP\MullvadVPN.exe";Remove-Item $mullvadInstaller"#,
             ),
         ],
         name: "Mullvad",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
     explination: "Install Helix",
     category: JobCategory::Application,
     list_of_commands: &[
         // Download ZIP
-        StaticPowerShellCommand::new(
+        StaticTerminalCommand::new(
             r#"$helixZip = "$env:TEMP\helix.zip";
 Invoke-WebRequest -Uri "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-windows.zip" -OutFile $helixZip"#,
         ),
 
         // Extract directly to C:\
-        StaticPowerShellCommand::new(
+        StaticTerminalCommand::new(
         r#"$helixZip = "$env:TEMP\helix.zip";
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
@@ -229,12 +229,12 @@ if (-not (Get-ChildItem C:\ | Where-Object { $_.Name -like 'helix-*windows*' }))
         ).req_admin(),
 
         // Cleanup ZIP
-        StaticPowerShellCommand::new(
+        StaticTerminalCommand::new(
             r#"$helixZip = "$env:TEMP\helix.zip"; Remove-Item $helixZip -Force"#,
         ).req_admin(),
 
         // Add extracted folder to Machine PATH
-        StaticPowerShellCommand::new(
+        StaticTerminalCommand::new(
             r#"$installRoot = "C:\";
         $binDir = Get-ChildItem $installRoot -Directory |
             Where-Object { $_.Name -like 'helix-*windows*' } |
@@ -260,64 +260,64 @@ if (-not (Get-ChildItem C:\ | Where-Object { $_.Name -like 'helix-*windows*' }))
             name: "Helix",
             tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Focusrite Control 2",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe""#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Invoke-WebRequest -Uri "https://releases.focusrite.com/com.focusrite.focusrite-control/latest/Focusrite-Control-2.exe" -OutFile $focusriteInstaller"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Start-Process -FilePath $focusriteInstaller -ArgumentList "/S" -Wait"#,
             ).req_admin(),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$focusriteInstaller = "$env:TEMP\Focusrite-Control-2.exe"; Remove-Item $focusriteInstaller"#,
             ),
         ],
         name: "Focusrite Control 2",
         tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install PowerToys",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Downloading...'; curl.exe -L -o $powertoysInstaller 'https://github.com/microsoft/PowerToys/releases/download/v0.81.1/PowerToysSetup-0.81.1-x64.exe')"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe';if ((Get-Item $powertoysInstaller).Length -lt 1024kb) { Write-Host 'Download failed or file too small.'; exit 1 }"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Installing...'; Start-Process -FilePath $powertoysInstaller -ArgumentList '/silent' -Wait"#,
             ).req_admin(),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$powertoysInstaller = Join-Path $env:TEMP 'PowerToysSetup.exe'; Write-Host 'PowerToys: Cleaning up...'; Remove-Item $powertoysInstaller"#,
             ),
         ],
         name: "PowerToys",tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install WSL",
         category: JobCategory::Windows,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
                 Write-Host "❗ Please run this script as Administrator." -ForegroundColor Red
                 return
             }"#,
             ).req_admin(),
-            StaticPowerShellCommand::new(r#"wsl --install --quiet"#).req_admin(),
+            StaticTerminalCommand::new(r#"wsl --install --quiet"#).req_admin(),
         ],
         name: "WSL",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Notepad++",
         category: JobCategory::Application,
         list_of_commands: &[
-            StaticPowerShellCommand::new(r#"
+            StaticTerminalCommand::new(r#"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $release = Invoke-RestMethod -Uri "https://api.github.com/repos/notepad-plus-plus/notepad-plus-plus/releases/latest"
@@ -333,15 +333,15 @@ Remove-Item $nppInstaller"#
         ],
         name: "Notepad++",tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         name: "PowerMode High Performance",
         explination: "Windows PowerMode High Performance",
         category: JobCategory::Windows,
         list_of_commands: &[
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]}"#,
             ),
-            StaticPowerShellCommand::new(
+            StaticTerminalCommand::new(
                 r#"$highPerf = powercfg -L | Select-String -Pattern "High performance" | ForEach-Object {($_ -split ' ')[3]};if ($highPerf) {
     Write-Host "👉 Setting power plan to High performance ($highPerf)..."
     powercfg -S $highPerf
@@ -362,11 +362,11 @@ Remove-Item $nppInstaller"#
             ),
         ],tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         name: "Display timeout 30min",
         explination: "When plugged in, turn off my screen after 30 minutes",
         category: JobCategory::Windows,
-        list_of_commands: &[StaticPowerShellCommand::new(
+        list_of_commands: &[StaticTerminalCommand::new(
             r#"
 function Set-DisplayTimeout {
     param (
@@ -403,11 +403,11 @@ Set-DisplayTimeout -timeoutSeconds 1800
 "#,
         )],tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         name: "Never Sleep",
         explination: "When plugged in, put my device to sleep after Never",
         category: JobCategory::Windows,
-        list_of_commands: &[StaticPowerShellCommand::new(
+        list_of_commands: &[StaticTerminalCommand::new(
             r#"function Set-SleepTimeout {
     param (
         [int]$timeoutSeconds
@@ -439,11 +439,11 @@ Set-DisplayTimeout -timeoutSeconds 1800
 Set-SleepTimeout -timeoutSeconds 0"#,
         )],tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         name: "Remove Cortana",
         explination: "Remove Cortana (Not Tested)",
         category: JobCategory::Windows,
-        list_of_commands: &[StaticPowerShellCommand::new(
+        list_of_commands: &[StaticTerminalCommand::new(
             r#"Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage"#,
         )],tested: JobReadyState::VERIFIED,
     }),
@@ -560,10 +560,10 @@ Set-SleepTimeout -timeoutSeconds 0"#,
         require_admin: false,
         post_fn: None,tested: JobReadyState::VERIFIED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Windows mouse acceleration is on by default",
         category: JobCategory::Windows,
-        list_of_commands: &[StaticPowerShellCommand::new(
+        list_of_commands: &[StaticTerminalCommand::new(
             r#"
 # Set registry values
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "0"
@@ -719,30 +719,30 @@ public class NativeMethods {
         post_fn: None,
         tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Will disable searching with windows explorer",
         category: JobCategory::Windows,
-        list_of_commands: &[StaticPowerShellCommand::new(
+        list_of_commands: &[StaticTerminalCommand::new(
             r#"Stop-Service -Name "WSearch""#,
         ),
-        StaticPowerShellCommand::new(
+        StaticTerminalCommand::new(
             r#"Set-Service -Name "WSearch" -StartupType Disabled"#,
         )],
         name: "Disable Windows Explorer Search",tested: JobReadyState::NOTTESTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Microdick Activation Script",
         category: JobCategory::Windows,
         list_of_commands: &[],
         name: "MAS",tested: JobReadyState::NOTIMPLEMENTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Show File Explorer Extensions",
         category: JobCategory::Windows,
         list_of_commands: &[],
         name: "Explorer Extensions",tested: JobReadyState::NOTIMPLEMENTED,
     }),
-    Job::PowerShellCommand(PowerShellCtx {
+    Job::PowerShellCommand(TerminalCtx {
         explination: "Install Firefox",
         category: JobCategory::Windows,
         list_of_commands: &[],

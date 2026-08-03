@@ -26,6 +26,66 @@ fn asd() {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
+pub fn execute_unix_command<I, S>(args: I) -> io::Result<Output>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let script_content = args
+        .into_iter()
+        .map(|s| s.as_ref().to_string_lossy().into_owned())
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    Command::new("sh").arg("-c").arg(script_content).output()
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn execute_unix_as_admin<I, S>(args: I) -> io::Result<Output>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let script_content = args
+        .into_iter()
+        .map(|s| s.as_ref().to_string_lossy().into_owned())
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    #[cfg(target_os = "macos")]
+    {
+        let osa_script = format!(
+            "do shell script \"{}\" with administrator privileges",
+            script_content.replace('\\', "\\\\").replace('"', "\\\"")
+        );
+
+        Command::new("osascript").arg("-e").arg(osa_script).output()
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        // On Linux, use pkexec if a graphical environment is detected, otherwise fall back to sudo
+        let use_pkexec =
+            std::env::var("DISPLAY").is_ok() || std::env::var("WAYLAND_DISPLAY").is_ok();
+
+        if use_pkexec {
+            Command::new("pkexec")
+                .arg("sh")
+                .arg("-c")
+                .arg(&script_content)
+                .output()
+        } else {
+            Command::new("sudo")
+                .arg("sh")
+                .arg("-c")
+                .arg(&script_content)
+                .output()
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
 pub fn execute_powershell_command<I, S>(args: I) -> io::Result<Output>
 where
     I: IntoIterator<Item = S>,
@@ -49,6 +109,7 @@ where
         .output()
 }
 
+#[cfg(target_os = "windows")]
 pub fn execute_powershell_as_admin<I, S>(args: I) -> io::Result<Output>
 where
     I: IntoIterator<Item = S>,
@@ -75,11 +136,4 @@ where
     Command::new("powershell")
         .args(&["-NoProfile", "-Command", &full_command])
         .output()
-}
-
-pub fn test_cmd() -> Output {
-    let result =
-        execute_powershell_command(&["Get-ComputerInfo | Select-Object -Property WindowsVersion"])
-            .unwrap_or_else(|e| panic!("{e}"));
-    result
 }

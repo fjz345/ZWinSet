@@ -1,7 +1,7 @@
 use crate::{
     jobs::{
-        Job, JobCategory, JobReadyState, PowerShellCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
-        StaticPowerShellCommand,
+        Job, JobCategory, JobReadyState, TerminalCtx, PowerShellRegKeyCtx, RegKey, RegKeyType,
+        StaticTerminalCommand,
     },
 };
 

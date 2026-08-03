@@ -5,13 +5,18 @@ use std::thread;
 use eframe::egui::mutex::Mutex;
 use strum_macros::{EnumCount, EnumIter};
 
+#[cfg(not(target_os = "windows"))]
+use crate::commands::{execute_unix_as_admin, execute_unix_command};
+
+#[cfg(target_os = "windows")]
 use crate::commands::{execute_powershell_as_admin, execute_powershell_command};
+
 use crate::error::{Result, ZError};
 use crate::threadsafe_atomic_counter::ThreadsafeAtomicCounter;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Job {
-    PowerShellCommand(PowerShellCtx),
+    TerminalCommand(TerminalCtx),
     PowerShellRegKey(PowerShellRegKeyCtx),
     RustFunction(RustFunctionCtx),
     InstallApplication(InstallApplicationCtx),
@@ -19,7 +24,10 @@ pub enum Job {
 
 #[derive(Debug)]
 pub struct JobStep {
+    #[cfg(target_os = "windows")]
     command: PowerShellCommand,
+    #[cfg(not(target_os = "windows"))]
+    command: UnixCommand,
     require_admin: bool,
     post_fn: Option<fn()>,
 }
@@ -29,24 +37,35 @@ impl JobStep {
         self.require_admin
     }
     pub fn execute(&mut self) -> Result<()> {
-        let powershell_result = if !self.command.is_empty() {
+        let result = if !self.command.is_empty() {
             log::debug!(
-                "Executing PowerShell command (admin={}):\n{}",
+                "Executing Terminal command (admin={}):\n{}",
                 self.require_admin(),
                 self.command
             );
-            if self.require_admin() {
-                Some(execute_powershell_as_admin(&[self.command.clone()]))
-            } else {
-                Some(execute_powershell_command(&[self.command.clone()]))
+            #[cfg(target_os = "windows")]
+            {
+                if self.require_admin() {
+                    Some(execute_powershell_as_admin(&[self.command.clone()]))
+                } else {
+                    Some(execute_powershell_command(&[self.command.clone()]))
+                }
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                if self.require_admin() {
+                    Some(execute_unix_as_admin(&[self.command.clone()]))
+                } else {
+                    Some(execute_unix_command(&[self.command.clone()]))
+                }
             }
         } else {
-            log::debug!("Failed to find PowerShell command");
+            log::debug!("Failed to execute Terminal command");
             None
         };
 
         let mut z_error = None;
-        if let Some(res) = powershell_result {
+        if let Some(res) = result {
             match res {
                 Ok(output) => {
                     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -88,7 +107,7 @@ impl JobStep {
 impl Job {
     pub fn ready_state(&self) -> JobReadyState {
         match self {
-            Job::PowerShellCommand(job) => job.tested,
+            Job::TerminalCommand(job) => job.tested,
             Job::InstallApplication(_job) => JobReadyState::const_default(),
             Job::PowerShellRegKey(job) => job.tested,
             Job::RustFunction(_job) => JobReadyState::const_default(),
@@ -99,7 +118,7 @@ impl Job {
     }
     pub fn job_steps(&self) -> impl Iterator<Item = JobStep> {
         let steps: Vec<JobStep> = match self {
-            Job::PowerShellCommand(job) => job.jobs_steps().collect(),
+            Job::TerminalCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
             Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
             Job::RustFunction(job) => job.jobs_steps().collect(),
@@ -109,7 +128,7 @@ impl Job {
 
     pub fn job_count(&self) -> usize {
         let steps: Vec<JobStep> = match self {
-            Job::PowerShellCommand(job) => job.jobs_steps().collect(),
+            Job::TerminalCommand(job) => job.jobs_steps().collect(),
             Job::InstallApplication(job) => job.jobs_steps().collect(),
             Job::PowerShellRegKey(job) => job.jobs_steps().collect(),
             Job::RustFunction(job) => job.jobs_steps().collect(),
@@ -119,7 +138,7 @@ impl Job {
 
     pub fn category(&self) -> JobCategory {
         match self {
-            Job::PowerShellCommand(job) => job.category,
+            Job::TerminalCommand(job) => job.category,
             Job::InstallApplication(job) => job.category,
             Job::PowerShellRegKey(job) => job.category,
             Job::RustFunction(job) => job.category,
@@ -128,7 +147,7 @@ impl Job {
 
     pub fn name(&self) -> &'static str {
         match self {
-            Job::PowerShellCommand(job) => job.name,
+            Job::TerminalCommand(job) => job.name,
             Job::InstallApplication(job) => job.name,
             Job::PowerShellRegKey(job) => job.name,
             Job::RustFunction(job) => job.name,
@@ -155,15 +174,17 @@ trait ExecutableJob {
         JobReadyState::const_default()
     }
 }
-
+#[cfg(target_os = "windows")]
 pub type PowerShellCommand = String;
+#[cfg(not(target_os = "windows"))]
+pub type UnixCommand = String;
+
 #[derive(Debug, PartialEq)]
-pub struct StaticPowerShellCommand {
+pub struct StaticTerminalCommand {
     pub cmd: &'static str,
     pub requires_admin: RequireAdmin,
 }
-
-impl From<&'static str> for StaticPowerShellCommand {
+impl From<&'static str> for StaticTerminalCommand {
     fn from(value: &'static str) -> Self {
         Self {
             cmd: value,
@@ -171,8 +192,7 @@ impl From<&'static str> for StaticPowerShellCommand {
         }
     }
 }
-
-impl StaticPowerShellCommand {
+impl StaticTerminalCommand {
     pub const fn new(cmd: &'static str) -> Self {
         Self {
             cmd: cmd,
@@ -234,15 +254,15 @@ impl JobReadyState {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct PowerShellCtx {
+pub struct TerminalCtx {
     pub(crate) name: &'static str,
     pub(crate) explination: &'static str,
     pub(crate) category: JobCategory,
-    pub(crate) list_of_commands: &'static [StaticPowerShellCommand],
+    pub(crate) list_of_commands: &'static [StaticTerminalCommand],
     pub(crate) tested: JobReadyState,
 }
 
-impl ExecutableJob for PowerShellCtx {
+impl ExecutableJob for TerminalCtx {
     fn tested(&self) -> JobReadyState {
         self.tested
     }
